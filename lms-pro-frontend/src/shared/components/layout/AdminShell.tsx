@@ -23,10 +23,8 @@ export function AdminShell() {
   };
 
   const navItems = [
-    { path: '/admin', label: 'Tổng quan', icon: LayoutDashboard },
-    { path: '/admin/courses', label: 'Quản lý khóa học', icon: BookOpen },
+    { path: '/admin', label: 'Tổng quan doanh thu', icon: LayoutDashboard },
     { path: '/admin/users', label: 'Quản lý học viên', icon: Users },
-    { path: '/admin/analytics', label: 'Báo cáo thống kê', icon: BarChart3 },
   ];
 
   return (
