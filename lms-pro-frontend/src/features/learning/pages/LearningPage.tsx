@@ -2,13 +2,20 @@ import { useState, useRef, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
-  ChevronDown, 
-  ChevronUp, 
   Play, 
+  Pause,
+  Maximize, 
   FileText, 
   Sparkles,
-  Maximize,
-  BookOpen
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
+  ListVideo,
+  Clock,
+  Download,
+  Plus,
+  Trash2,
+  Volume2
 } from 'lucide-react';
 import { useCourseStore } from '@/store/courseStore';
 
@@ -16,16 +23,17 @@ export function LearningPage() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
   const navigate = useNavigate();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const course = useCourseStore((s) => s.courses.find((c) => c.id === courseId));
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
-  const [activeTab, setActiveTab] = useState<'documents' | 'notes'>('documents');
+  const [activeTab, setActiveTab] = useState<'overview' | 'documents' | 'notes'>('overview');
   const [noteContent, setNoteContent] = useState('');
   const [notes, setNotes] = useState<any[]>([
-    { id: 1, time: '02:15', content: 'Ghi chú về việc khởi tạo dự án học tập' },
-    { id: 2, time: '05:40', content: 'Cách tổ chức bài học hiệu quả' }
+    { id: 1, time: '01:15', content: 'Cần ghi nhớ cấu trúc thư mục của dự án và các alias path.' },
+    { id: 2, time: '03:40', content: 'Phần kết nối Firestore rules rất quan trọng cho việc phân quyền.' }
   ]);
 
   const [expandedChapter, setExpandedChapter] = useState<string | null>(null);
@@ -40,9 +48,9 @@ export function LearningPage() {
 
   if (!course) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: 'var(--color-paper)', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="flex flex-col h-screen bg-paper items-center justify-center gap-4">
         <h2 className="text-xl font-bold text-ink">Không tìm thấy khóa học</h2>
-        <Link to="/app/dashboard" className="text-xs text-accent mt-4 hover:underline">Quay lại bảng điều khiển</Link>
+        <Link to="/app/dashboard" className="text-xs text-accent hover:underline font-semibold">Quay lại bảng điều khiển</Link>
       </div>
     );
   }
@@ -52,9 +60,9 @@ export function LearningPage() {
 
   if (!activeLesson) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: 'var(--color-paper)', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="flex flex-col h-screen bg-paper items-center justify-center gap-4">
         <h2 className="text-xl font-bold text-ink">Chưa có bài học nào được tải lên</h2>
-        <Link to={`/courses/${course.slug}`} className="text-xs text-accent mt-4 hover:underline">Quay lại chi tiết khóa học</Link>
+        <Link to={`/courses/${course.slug}`} className="text-xs text-accent hover:underline font-semibold">Quay lại chi tiết khóa học</Link>
       </div>
     );
   }
@@ -126,202 +134,111 @@ export function LearningPage() {
     setNoteContent('');
   };
 
+  const handleDeleteNote = (id: number) => {
+    setNotes(notes.filter(n => n.id !== id));
+  };
+
+  const seekToTime = (timeStr: string) => {
+    const parts = timeStr.split(':').map(Number);
+    let totalSecs = 0;
+    if (parts.length === 2) {
+      totalSecs = parts[0] * 60 + parts[1];
+    } else if (parts.length === 3) {
+      totalSecs = parts[0] * 3600 + parts[1] * 60 + parts[2];
+    }
+    if (videoRef.current) {
+      videoRef.current.currentTime = totalSecs;
+      setVideoTime(totalSecs);
+      if (!isPlaying) {
+        videoRef.current.play().catch(err => console.log(err));
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  const handleToggleFullscreen = () => {
+    if (videoRef.current) {
+      if (videoRef.current.requestFullscreen) {
+        videoRef.current.requestFullscreen();
+      }
+    }
+  };
+
   // Safe percentage calculator
   const completedLessonsCount = allLessons.filter((_, idx) => idx < allLessons.indexOf(activeLesson)).length;
   const progressPercent = allLessons.length > 0 ? Math.round((completedLessonsCount / allLessons.length) * 100) : 0;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: 'var(--color-paper)', fontFamily: 'var(--font-body)', overflow: 'hidden' }}>
+    <div className="flex flex-col h-screen bg-paper font-body overflow-hidden">
       
       {/* Top Navbar */}
-      <header style={{
-        height: 56, borderBottom: '1px solid var(--color-border)',
-        backgroundColor: 'var(--color-paper-raised)', display: 'flex',
-        alignItems: 'center', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, zIndex: 10, flexShrink: 0
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Link to="/app/dashboard" style={{
-            padding: 6, borderRadius: '50%', backgroundColor: 'var(--color-paper-dim)',
-            color: 'var(--color-ink-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            textDecoration: 'none'
-          }}>
-            <ArrowLeft size={16} />
+      <header className="h-14 border-b border-border bg-paper-raised flex items-center justify-between px-4 z-10 shrink-0 shadow-xs">
+        <div className="flex items-center gap-3 min-w-0">
+          <Link 
+            to="/app/dashboard" 
+            className="p-2 rounded-full bg-paper border border-border text-ink-soft hover:text-accent hover:border-accent/30 transition-all flex items-center justify-center"
+          >
+            <ArrowLeft className="h-4 w-4" />
           </Link>
-          <div style={{ lineHeight: 1.25 }}>
-            <h1 style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-ink)', maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div className="line-clamp-1 min-w-0">
+            <h1 className="text-xs sm:text-sm font-extrabold text-ink leading-tight truncate">
               {course.title}
             </h1>
-            <span style={{ fontSize: 10, color: 'var(--color-muted)', fontFamily: 'var(--font-mono)' }}>
+            <span className="text-[10px] text-muted font-mono leading-none block mt-0.5">
               {activeChapter?.title || 'Chương học'}
             </span>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            backgroundColor: 'rgba(62,124,89,0.1)', border: '1px solid rgba(62,124,89,0.25)',
-            borderRadius: 99, padding: '4px 12px', fontSize: 10, fontWeight: 700,
-            color: 'var(--color-success)', fontFamily: 'var(--font-mono)'
-          }} className="hidden sm:inline-flex">
-            <Sparkles size={11} />
-            Đã học xong {completedLessonsCount}/{allLessons.length} bài
+        <div className="flex items-center gap-3">
+          {/* Progress badge */}
+          <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-success-soft/10 border border-success/20 text-[10px] font-bold text-success font-mono">
+            <Sparkles className="h-3 w-3" />
+            Đã hoàn thành {completedLessonsCount}/{allLessons.length} bài ({progressPercent}%)
           </div>
           
+          {/* Sidebar Toggle button on desktop */}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 border border-border rounded-xl text-xs font-bold text-ink-soft bg-paper hover:bg-paper-dim hover:text-ink transition-colors cursor-pointer"
+          >
+            <ListVideo className="h-4 w-4 text-muted" />
+            {sidebarOpen ? 'Ẩn giáo trình' : 'Hiện giáo trình'}
+          </button>
+
+          {/* Mobile curriculum trigger */}
           <button
             onClick={() => setMobileNavOpen(true)}
-            className="md:hidden flex items-center justify-center gap-1.5"
-            style={{
-              backgroundColor: 'var(--color-accent)', color: '#fff',
-              padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-              boxShadow: '0 2px 6px rgba(224,115,74,0.3)', cursor: 'pointer'
-            }}
+            className="md:hidden flex items-center justify-center gap-1.5 bg-accent text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:bg-accent/95 cursor-pointer"
           >
-            <BookOpen size={13} />
-            Bài học
+            <BookOpen className="h-3.5 w-3.5" />
+            Bài giảng
           </button>
         </div>
       </header>
 
       {/* Main Workspace Layout */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      <div className="flex-1 flex overflow-hidden relative">
         
-        {/* LEFT: Sidebar with BookSpineProgress & Curriculum */}
-        <aside style={{
-          width: 320, borderRight: '1px solid var(--color-border)',
-          backgroundColor: 'var(--color-paper-raised)', display: 'flex',
-          flexShrink: 0, overflowY: 'auto'
-        }} className="hidden md:flex">
+        {/* LEFT WORKSPACE: Video Player and Tabs Info */}
+        <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-paper">
           
-          {/* Signature Book-Spine Progress Column */}
-          <div style={{
-            width: 44, borderRight: '1px solid var(--color-border)',
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            paddingTop: 24, paddingBottom: 24, gap: 16,
-            backgroundColor: 'rgba(236,234,224,0.3)', flexShrink: 0
-          }}>
-            <div style={{
-              fontSize: 9, fontWeight: 800, color: 'var(--color-muted)',
-              textTransform: 'uppercase', letterSpacing: '0.15em',
-              writingMode: 'vertical-lr', transform: 'rotate(180deg)',
-              userSelect: 'none'
-            }}>
-              Tiến độ học tập
-            </div>
-            
-            {/* Book spine line representation */}
-            <div style={{
-              flexGrow: 1, width: 6, backgroundColor: 'var(--color-paper)',
-              borderRadius: 99, border: '1px solid var(--color-border)',
-              position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-            }}>
-              <div style={{ width: '100%', height: `${progressPercent}%`, backgroundColor: 'var(--color-success)' }} />
-            </div>
-          </div>
-
-          {/* Chapters and lessons */}
-          <div style={{ flex: 1, padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <h3 style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>
-              Nội dung khóa học
-            </h3>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {course.chapters
-                .sort((a, b) => a.order - b.order)
-                .map((chapter) => {
-                  const isExpanded = expandedChapter === chapter.id;
-                  return (
-                    <div key={chapter.id} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                      <button
-                        onClick={() => setExpandedChapter(isExpanded ? null : chapter.id)}
-                        style={{
-                          width: '100%', display: 'flex', alignItems: 'center',
-                          justifyContent: 'space-between', padding: '6px 0', textAlign: 'left',
-                          fontSize: 12, fontWeight: 700, color: 'var(--color-ink)',
-                          cursor: 'pointer', background: 'transparent', border: 'none'
-                        }}
-                      >
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '85%' }}>
-                          {chapter.title}
-                        </span>
-                        {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                      </button>
-
-                      {isExpanded && (
-                        <div style={{
-                          display: 'flex', flexDirection: 'column', gap: 6,
-                          paddingLeft: 8, borderLeft: '1px solid var(--color-border)',
-                          marginTop: 4
-                        }}>
-                          {chapter.lessons && chapter.lessons
-                            .sort((a, b) => a.order - b.order)
-                            .map((lesson) => {
-                              const isActive = lesson.id === lessonId;
-                              const isCompleted = allLessons.indexOf(lesson) < allLessons.indexOf(activeLesson);
-                              return (
-                                <button
-                                  key={lesson.id}
-                                  onClick={() => navigate(`/app/learn/${course.id}/${lesson.id}`)}
-                                  style={{
-                                    width: '100%', display: 'flex', alignItems: 'center',
-                                    justifyContent: 'space-between', padding: '8px 10px',
-                                    borderRadius: 6, fontSize: 12, textAlign: 'left',
-                                    backgroundColor: isActive ? 'rgba(224,115,74,0.08)' : 'transparent',
-                                    border: isActive ? '1px solid rgba(224,115,74,0.2)' : '1px solid transparent',
-                                    color: isActive ? 'var(--color-accent)' : 'var(--color-ink-soft)',
-                                    cursor: 'pointer', transition: 'all 0.2s'
-                                  }}
-                                  onMouseEnter={e => {
-                                    if (!isActive) e.currentTarget.style.backgroundColor = 'var(--color-paper-dim)';
-                                  }}
-                                  onMouseLeave={e => {
-                                    if (!isActive) e.currentTarget.style.backgroundColor = 'transparent';
-                                  }}
-                                >
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, flex: 1 }}>
-                                    <Play size={10} style={{ color: isActive ? 'var(--color-accent)' : 'var(--color-muted)', flexShrink: 0 }} />
-                                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: isActive ? 700 : 500 }}>
-                                      {lesson.title}
-                                    </span>
-                                  </div>
-                                  <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--color-muted)', marginLeft: 4 }}>
-                                    {lesson.durationLabel}
-                                  </span>
-                                </button>
-                              );
-                            })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-            </div>
-          </div>
-        </aside>
-
-        {/* RIGHT: Video Screen and Tabs Workspace */}
-        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflowY: 'auto' }}>
-          
-          {/* Custom Video Player area */}
-          <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9', backgroundColor: '#000', overflow: 'hidden' }}>
+          {/* Custom Video Player wrapper */}
+          <div className="relative w-full aspect-video bg-black overflow-hidden group shadow-md shrink-0">
             <video
               ref={videoRef}
               src={activeLesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"}
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              className="w-full h-full object-contain cursor-pointer"
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
               onClick={togglePlay}
             />
 
-            {/* Custom Control Overlay */}
-            <div style={{
-              position: 'absolute', bottom: 0, left: 0, right: 0,
-              background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)',
-              padding: 16, display: 'flex', flexDirection: 'column', gap: 12,
-              zIndex: 10
-            }}>
-              {/* Progress track bar */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {/* Custom Control Overlay (Udemy Style - fades on hover) */}
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300 z-10">
+              
+              {/* Timeline seek range */}
+              <div className="flex items-center">
                 <input
                   type="range"
                   min="0"
@@ -329,239 +246,234 @@ export function LearningPage() {
                   step="0.1"
                   value={videoTime}
                   onChange={handleSeek}
-                  style={{
-                    width: '100%', height: 4, borderRadius: 99,
-                    cursor: 'pointer', outline: 'none', accentColor: 'var(--color-accent)'
-                  }}
+                  className="w-full h-1 rounded-full cursor-pointer outline-none accent-accent bg-white/30 hover:h-1.5 transition-all duration-150"
                 />
               </div>
 
-              {/* Control Buttons */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#fff', fontSize: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <button onClick={togglePlay} style={{ color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', background: 'transparent', border: 'none' }}>
-                    {isPlaying ? <span style={{ fontWeight: 700, fontSize: 11, fontFamily: 'var(--font-mono)' }}>TẠM DỪNG</span> : <Play size={14} fill="#fff" />}
+              {/* Action buttons bar */}
+              <div className="flex items-center justify-between text-white text-xs font-mono">
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={togglePlay} 
+                    className="p-1 rounded-full hover:bg-white/10 text-white transition-colors cursor-pointer flex items-center justify-center"
+                  >
+                    {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 fill-white" />}
                   </button>
-                  <span style={{ fontFamily: 'var(--font-mono)' }}>
-                    {formatVideoTime(videoTime)} / {formatVideoTime(videoDuration)}
-                  </span>
+                  
+                  <div className="flex items-center gap-1">
+                    <Volume2 className="h-4 w-4 text-white/80" />
+                    <span>{formatVideoTime(videoTime)} / {formatVideoTime(videoDuration)}</span>
+                  </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div className="flex items-center gap-4">
                   <button 
                     onClick={changeRate} 
-                    style={{
-                      fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#fff',
-                      border: '1px solid rgba(255,255,255,0.25)', borderRadius: 4,
-                      padding: '2px 6px', fontSize: 10, cursor: 'pointer', backgroundColor: 'transparent'
-                    }}
+                    className="border border-white/20 rounded-md px-2 py-0.5 text-[10px] font-bold text-white bg-white/5 hover:bg-white/15 transition-colors cursor-pointer"
                   >
                     {playbackRate}x
                   </button>
-                  <button style={{ color: '#fff', cursor: 'pointer', backgroundColor: 'transparent', border: 'none' }}>
-                    <Maximize size={14} />
+                  <button 
+                    onClick={handleToggleFullscreen}
+                    className="p-1 rounded-full hover:bg-white/10 text-white transition-colors cursor-pointer flex items-center justify-center"
+                  >
+                    <Maximize className="h-4 w-4" />
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Info & Workspace Section */}
-          <div style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: 24, flexGrow: 1 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-ink)' }}>
+          {/* Tab information details workspace */}
+          <div className="p-6 space-y-6 flex-grow flex flex-col">
+            
+            {/* Active lesson title & format */}
+            <div className="border-b border-border pb-4 space-y-1">
+              <h2 className="text-base sm:text-lg font-extrabold text-ink leading-snug">
                 {activeLesson.title}
               </h2>
-              <p style={{ fontSize: 11, color: 'var(--color-muted)', fontFamily: 'var(--font-mono)' }}>
-                Định dạng bài học: {activeLesson.type.toUpperCase()}
-              </p>
+              <span className="inline-flex px-2 py-0.5 rounded bg-paper border border-border text-[9px] font-bold text-muted uppercase font-mono tracking-wider">
+                Định dạng: {activeLesson.type === 'video' ? 'Video học tập' : 'Tài liệu hướng dẫn'}
+              </span>
             </div>
 
-            {/* Workspace tabs */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {/* Tab Header Selector */}
-              <div style={{ borderBottom: '1px solid var(--color-border)', display: 'flex', gap: 24 }}>
+            {/* Udemy style Workspace tabs */}
+            <div className="space-y-6 flex-grow flex flex-col">
+              
+              {/* Tab headers */}
+              <div className="flex gap-6 border-b border-border text-xs font-bold uppercase tracking-wider text-ink-soft shrink-0">
+                <button
+                  onClick={() => setActiveTab('overview')}
+                  className={`pb-3 border-b-2 transition-all cursor-pointer ${
+                    activeTab === 'overview' ? 'border-accent text-accent' : 'border-transparent text-ink-soft hover:text-ink'
+                  }`}
+                >
+                  Tổng quan khóa học
+                </button>
                 <button
                   onClick={() => setActiveTab('documents')}
-                  style={{
-                    paddingBottom: 10, fontSize: 12, fontWeight: 700,
-                    textTransform: 'uppercase', letterSpacing: '0.05em',
-                    color: activeTab === 'documents' ? 'var(--color-accent)' : 'var(--color-ink-soft)',
-                    borderBottom: activeTab === 'documents' ? '2px solid var(--color-accent)' : '2px solid transparent',
-                    cursor: 'pointer', backgroundColor: 'transparent', borderLeft: 'none', borderRight: 'none', borderTop: 'none'
-                  }}
+                  className={`pb-3 border-b-2 transition-all cursor-pointer ${
+                    activeTab === 'documents' ? 'border-accent text-accent' : 'border-transparent text-ink-soft hover:text-ink'
+                  }`}
                 >
                   Tài liệu đính kèm
                 </button>
                 <button
                   onClick={() => setActiveTab('notes')}
-                  style={{
-                    paddingBottom: 10, fontSize: 12, fontWeight: 700,
-                    textTransform: 'uppercase', letterSpacing: '0.05em',
-                    color: activeTab === 'notes' ? 'var(--color-accent)' : 'var(--color-ink-soft)',
-                    borderBottom: activeTab === 'notes' ? '2px solid var(--color-accent)' : '2px solid transparent',
-                    cursor: 'pointer', backgroundColor: 'transparent', borderLeft: 'none', borderRight: 'none', borderTop: 'none'
-                  }}
+                  className={`pb-3 border-b-2 transition-all cursor-pointer ${
+                    activeTab === 'notes' ? 'border-accent text-accent' : 'border-transparent text-ink-soft hover:text-ink'
+                  }`}
                 >
-                  Ghi chú cá nhân
+                  Ghi chú bài giảng ({notes.length})
                 </button>
               </div>
 
-              {/* Tab Contents */}
-              {activeTab === 'documents' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '12px 16px', border: '1px solid var(--color-border)',
-                    borderRadius: 12, backgroundColor: 'var(--color-paper-raised)',
-                    boxShadow: '0 2px 8px rgba(27,42,74,0.01)'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <FileText size={18} style={{ color: 'var(--color-accent)' }} />
-                      <div>
-                        <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-ink)' }}>Slide bài học & Tài nguyên.pdf</p>
-                        <span style={{ fontSize: 10, color: 'var(--color-muted)', fontFamily: 'var(--font-mono)' }}>PDF • 1.5 MB</span>
-                      </div>
+              {/* Tab components content */}
+              <div className="flex-grow">
+                
+                {/* 1. Overview Tab */}
+                {activeTab === 'overview' && (
+                  <div className="space-y-4 max-w-3xl animate-in fade-in duration-200 text-xs sm:text-sm text-ink-soft leading-relaxed">
+                    <div className="space-y-2">
+                      <h4 className="font-bold text-ink text-sm uppercase tracking-wide">Mô tả chi tiết bài học</h4>
+                      <p>{course.shortDescription}</p>
                     </div>
-                    <a
-                      href="#"
-                      onClick={(e) => { e.preventDefault(); alert('Tài liệu giả lập đã được tải xuống.'); }}
-                      style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}
-                      onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
-                      onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
-                    >
-                      Tải về
-                    </a>
+                    <div className="p-4 rounded-xl bg-paper border border-border space-y-3 mt-4">
+                      <h5 className="font-bold text-ink text-xs uppercase tracking-wider flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-accent" />
+                        Thông tin chương trình giảng dạy
+                      </h5>
+                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-ink-soft">
+                        <li>• Tổng số chương: <strong>{course.chapters?.length || 0} chương</strong></li>
+                        <li>• Cấp độ: <strong className="uppercase">{course.level}</strong></li>
+                        <li>• Chuyên mục: <strong className="capitalize">{course.category}</strong></li>
+                        <li>• Đồng bộ tự động: <strong>Đã kết nối với Database</strong></li>
+                      </ul>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  {/* Note Creator Input */}
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <input
-                      type="text"
-                      placeholder={`Ghi chú tại ${formatVideoTime(videoTime)}...`}
-                      value={noteContent}
-                      onChange={(e) => setNoteContent(e.target.value)}
-                      style={{
-                        flexGrow: 1, borderRadius: 8, border: '1px solid var(--color-border)',
-                        backgroundColor: 'var(--color-paper-raised)', padding: '10px 12px',
-                        fontSize: 12, color: 'var(--color-ink)', outline: 'none',
-                      }}
-                      onFocus={e => e.target.style.borderColor = 'var(--color-accent)'}
-                      onBlur={e => e.target.style.borderColor = 'var(--color-border)'}
-                    />
-                    <button
-                      onClick={handleAddNote}
-                      style={{
-                        borderRadius: 8, backgroundColor: 'var(--color-accent)',
-                        color: '#fff', fontSize: 12, fontWeight: 700, border: 'none',
-                        padding: '10px 20px', cursor: 'pointer', transition: 'background-color 0.2s',
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-accent-deep)'}
-                      onMouseLeave={e => e.currentTarget.style.backgroundColor = 'var(--color-accent)'}
-                    >
-                      Ghi lại
-                    </button>
-                  </div>
+                )}
 
-                  {/* Notes List */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {notes.map((note) => (
-                      <div key={note.id} style={{
-                        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
-                        padding: '12px 14px', backgroundColor: 'rgba(236,234,224,0.3)',
-                        border: '1px solid var(--color-border)', borderRadius: 10
-                      }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                          <span style={{
-                            fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 700,
-                            color: 'var(--color-accent)', backgroundColor: 'rgba(224,115,74,0.12)',
-                            padding: '2px 8px', borderRadius: 4, alignSelf: 'flex-start'
-                          }}>
-                            {note.time}
-                          </span>
-                          <p style={{ fontSize: 12, color: 'var(--color-ink-soft)', lineHeight: 1.5 }}>{note.content}</p>
+                {/* 2. Documents Tab */}
+                {activeTab === 'documents' && (
+                  <div className="space-y-3 max-w-xl animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between p-4 bg-paper-raised border border-border rounded-xl hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-accent/10 border border-accent/20 rounded-lg text-accent">
+                          <FileText className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-ink text-xs sm:text-sm">Slide bài giảng & Mã nguồn mẫu.pdf</p>
+                          <span className="text-[10px] text-muted font-mono">PDF • 2.4 MB</span>
                         </div>
                       </div>
-                    ))}
+                      <a 
+                        href="#"
+                        onClick={(e) => { e.preventDefault(); alert('Tải xuống tài liệu học tập demo thành công.'); }}
+                        className="inline-flex items-center gap-1 border border-border rounded-xl px-3 py-1.5 text-xs font-bold text-ink hover:bg-paper transition-colors"
+                      >
+                        <Download className="h-3.5 w-3.5 text-muted" />
+                        Tải về
+                      </a>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+
+                {/* 3. Notes Tab */}
+                {activeTab === 'notes' && (
+                  <div className="space-y-6 max-w-2xl animate-in fade-in duration-200">
+                    {/* Add note input box */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder={`Thêm ghi chú cá nhân tại ${formatVideoTime(videoTime)}...`}
+                        value={noteContent}
+                        onChange={(e) => setNoteContent(e.target.value)}
+                        className="flex-1 bg-paper-raised border border-border rounded-xl px-3 py-2 text-xs text-ink placeholder-muted focus:outline-none focus:border-accent transition-colors"
+                      />
+                      <button
+                        onClick={handleAddNote}
+                        className="bg-accent text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md hover:bg-accent/95 transition-colors cursor-pointer shrink-0"
+                      >
+                        Ghi lại
+                      </button>
+                    </div>
+
+                    {/* Notes listing */}
+                    <div className="space-y-3">
+                      {notes.length > 0 ? (
+                        notes.map((note) => (
+                          <div 
+                            key={note.id} 
+                            className="flex justify-between items-start p-4 bg-paper border border-border rounded-xl hover:border-accent/20 transition-all duration-200"
+                          >
+                            <div className="space-y-2">
+                              {/* Clickable timestamp tag */}
+                              <button
+                                onClick={() => seekToTime(note.time)}
+                                className="inline-flex items-center gap-1 font-mono text-[10px] font-bold text-accent bg-accent/10 hover:bg-accent/20 border border-accent/20 px-2.5 py-0.5 rounded-full cursor-pointer transition-colors"
+                                title="Click để tua video đến mốc này"
+                              >
+                                <Play className="h-2.5 w-2.5 fill-accent" />
+                                {note.time}
+                              </button>
+                              <p className="text-xs text-ink-soft leading-relaxed">{note.content}</p>
+                            </div>
+                            
+                            <button
+                              onClick={() => handleDeleteNote(note.id)}
+                              className="p-1 rounded hover:bg-paper-dim text-muted hover:text-danger transition-colors cursor-pointer"
+                              title="Xóa ghi chú"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-8 text-center text-ink-soft/60">
+                          <p className="text-xs">Chưa có ghi chú nào trong bài học này.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              </div>
             </div>
+
           </div>
-
         </main>
-      </div>
 
-      {/* Mobile navigation drawer */}
-      {mobileNavOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 150, display: 'flex' }}>
-          {/* Backdrop */}
-          <div
-            onClick={() => setMobileNavOpen(false)}
-            style={{
-              position: 'absolute', inset: 0,
-              backgroundColor: 'rgba(27,42,74,0.45)',
-              backdropFilter: 'blur(4px)',
-              WebkitBackdropFilter: 'blur(4px)',
-              animation: 'fade-in 0.2s ease-out'
-            }}
-          />
-          {/* Drawer content */}
-          <div style={{
-            position: 'relative', width: 290, height: '100%',
-            backgroundColor: 'var(--color-paper-raised)', borderRight: '1px solid var(--color-border)',
-            boxShadow: '8px 0 32px rgba(27,42,74,0.15)', display: 'flex', flexDirection: 'column',
-            animation: 'fade-up 0.25s ease-out', zIndex: 151, overflowY: 'auto'
-          }}>
-            {/* Drawer Header */}
-            <div style={{ display: 'flex', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid var(--color-border)', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--color-ink)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Nội dung học tập
-              </span>
-              <button
-                onClick={() => setMobileNavOpen(false)}
-                style={{
-                  fontSize: 11, fontWeight: 700, color: 'var(--color-accent)',
-                  padding: '4px 10px', borderRadius: 6, backgroundColor: 'rgba(224,115,74,0.12)',
-                  cursor: 'pointer'
-                }}
-              >
-                Đóng
-              </button>
-            </div>
-            
-            {/* Drawer Curriculum */}
-            <div style={{ flex: 1, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {/* RIGHT WORKSPACE: Collapsible Curriculum Sidebar (Desktop only) */}
+        <aside 
+          style={{
+            width: sidebarOpen ? '320px' : '0px',
+            borderLeftWidth: sidebarOpen ? '1px' : '0px',
+          }}
+          className="hidden md:flex flex-col border-border bg-paper-raised shrink-0 overflow-y-auto transition-all duration-300 z-10"
+        >
+          {sidebarOpen && (
+            <div className="p-4 flex flex-col gap-4 h-full animate-in fade-in duration-200">
+              <h3 className="text-[10px] font-extrabold uppercase tracking-wider text-muted select-none">
+                Danh mục bài học
+              </h3>
+              
+              <div className="flex-1 overflow-y-auto space-y-3">
                 {course.chapters
                   .sort((a, b) => a.order - b.order)
                   .map((chapter) => {
                     const isExpanded = expandedChapter === chapter.id;
                     return (
-                      <div key={chapter.id} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <div key={chapter.id} className="space-y-1">
                         <button
                           onClick={() => setExpandedChapter(isExpanded ? null : chapter.id)}
-                          style={{
-                            width: '100%', display: 'flex', alignItems: 'center',
-                            justifyContent: 'space-between', padding: '6px 0', textAlign: 'left',
-                            fontSize: 12, fontWeight: 700, color: 'var(--color-ink)',
-                            cursor: 'pointer', background: 'transparent', border: 'none'
-                          }}
+                          className="w-full flex items-center justify-between py-2 text-left font-bold text-ink text-xs hover:text-accent transition-colors cursor-pointer"
                         >
-                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '85%' }}>
-                            {chapter.title}
-                          </span>
-                          {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                          <span className="truncate max-w-[85%]">{chapter.title}</span>
+                          {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                         </button>
 
                         {isExpanded && (
-                          <div style={{
-                            display: 'flex', flexDirection: 'column', gap: 6,
-                            paddingLeft: 8, borderLeft: '1px solid var(--color-border)',
-                            marginTop: 4
-                          }}>
+                          <div className="pl-3 border-l border-border mt-1 space-y-1.5 animate-in slide-in-from-left-1 duration-150">
                             {chapter.lessons && chapter.lessons
                               .sort((a, b) => a.order - b.order)
                               .map((lesson) => {
@@ -569,29 +481,18 @@ export function LearningPage() {
                                 return (
                                   <button
                                     key={lesson.id}
-                                    onClick={() => {
-                                      navigate(`/app/learn/${course.id}/${lesson.id}`);
-                                      setMobileNavOpen(false);
-                                    }}
-                                    style={{
-                                      width: '100%', display: 'flex', alignItems: 'center',
-                                      justifyContent: 'space-between', padding: '8px 10px',
-                                      borderRadius: 6, fontSize: 12, textAlign: 'left',
-                                      backgroundColor: isActive ? 'rgba(224,115,74,0.08)' : 'transparent',
-                                      border: isActive ? '1px solid rgba(224,115,74,0.2)' : '1px solid transparent',
-                                      color: isActive ? 'var(--color-accent)' : 'var(--color-ink-soft)',
-                                      cursor: 'pointer', transition: 'all 0.2s'
-                                    }}
+                                    onClick={() => navigate(`/app/learn/${course.id}/${lesson.id}`)}
+                                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs transition-all border ${
+                                      isActive 
+                                        ? 'bg-accent/10 border-accent/20 text-accent font-bold' 
+                                        : 'bg-transparent border-transparent text-ink-soft hover:bg-paper hover:text-ink'
+                                    }`}
                                   >
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, flex: 1 }}>
-                                      <Play size={10} style={{ color: isActive ? 'var(--color-accent)' : 'var(--color-muted)', flexShrink: 0 }} />
-                                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: isActive ? 700 : 500 }}>
-                                        {lesson.title}
-                                      </span>
+                                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                                      <Play className={`h-3 w-3 shrink-0 ${isActive ? 'text-accent fill-accent' : 'text-muted'}`} />
+                                      <span className="truncate">{lesson.title}</span>
                                     </div>
-                                    <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--color-muted)', marginLeft: 4 }}>
-                                      {lesson.durationLabel}
-                                    </span>
+                                    <span className="text-[9px] font-mono text-muted pl-2 shrink-0">{lesson.durationLabel}</span>
                                   </button>
                                 );
                               })}
@@ -602,17 +503,86 @@ export function LearningPage() {
                   })}
               </div>
             </div>
+          )}
+        </aside>
+
+      </div>
+
+      {/* Mobile Drawer ( Curriculum sidebar on small screens ) */}
+      {mobileNavOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          {/* Backdrop */}
+          <div 
+            onClick={() => setMobileNavOpen(false)}
+            className="absolute inset-0 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200"
+          />
+
+          {/* Drawer content */}
+          <div className="relative w-72 h-full bg-paper-raised border-r border-border shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200 overflow-y-auto">
+            <div className="p-4 border-b border-border flex items-center justify-between">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-muted">
+                Danh sách bài giảng
+              </span>
+              <button 
+                onClick={() => setMobileNavOpen(false)}
+                className="text-xs font-bold text-accent px-2.5 py-1 rounded-lg bg-accent/10 border border-accent/20 cursor-pointer"
+              >
+                Đóng
+              </button>
+            </div>
+
+            <div className="p-4 flex-1 overflow-y-auto space-y-4">
+              {course.chapters
+                .sort((a, b) => a.order - b.order)
+                .map((chapter) => {
+                  const isExpanded = expandedChapter === chapter.id;
+                  return (
+                    <div key={chapter.id} className="space-y-1">
+                      <button
+                        onClick={() => setExpandedChapter(isExpanded ? null : chapter.id)}
+                        className="w-full flex items-center justify-between py-1.5 text-left font-bold text-ink text-xs hover:text-accent transition-colors cursor-pointer"
+                      >
+                        <span className="truncate max-w-[85%]">{chapter.title}</span>
+                        {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                      </button>
+
+                      {isExpanded && (
+                        <div className="pl-3 border-l border-border mt-1 space-y-1.5">
+                          {chapter.lessons && chapter.lessons
+                            .sort((a, b) => a.order - b.order)
+                            .map((lesson) => {
+                              const isActive = lesson.id === lessonId;
+                              return (
+                                <button
+                                  key={lesson.id}
+                                  onClick={() => {
+                                    navigate(`/app/learn/${course.id}/${lesson.id}`);
+                                    setMobileNavOpen(false);
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs transition-all border ${
+                                    isActive 
+                                      ? 'bg-accent/10 border-accent/20 text-accent font-bold' 
+                                      : 'bg-transparent border-transparent text-ink-soft hover:bg-paper hover:text-ink'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                                    <Play className={`h-3 w-3 shrink-0 ${isActive ? 'text-accent fill-accent' : 'text-muted'}`} />
+                                    <span className="truncate">{lesson.title}</span>
+                                  </div>
+                                  <span className="text-[9px] font-mono text-muted pl-2 shrink-0">{lesson.durationLabel}</span>
+                                </button>
+                              );
+                            })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Styled vertical layout stylesheet */}
-      <style>{`
-        .vertical-text {
-          writing-mode: vertical-lr;
-          transform: rotate(180deg);
-        }
-      `}</style>
     </div>
   );
 }
