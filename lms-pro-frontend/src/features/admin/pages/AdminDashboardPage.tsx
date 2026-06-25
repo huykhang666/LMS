@@ -37,36 +37,28 @@ export function AdminDashboardPage() {
 
   const stats = [
     {
-      label: 'Tổng số khóa học',
-      value: courses.length.toString(),
+      label: 'Tổng khoá học',
+      value: courses.length,
       icon: BookOpen,
-      gradient: 'bg-violet-50 text-violet-600 border-violet-100',
-      iconColor: 'text-violet-600',
-      borderColor: 'border-l-4 border-l-violet-600',
+      highlighted: courses.length > 0,
     },
     {
       label: 'Đã xuất bản',
-      value: publishedCourses.length.toString(),
+      value: publishedCourses.length,
       icon: Eye,
-      gradient: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-      iconColor: 'text-emerald-600',
-      borderColor: 'border-l-4 border-l-emerald-500',
+      highlighted: publishedCourses.length > 0,
     },
     {
-      label: 'Khóa học nháp',
-      value: draftCourses.length.toString(),
+      label: 'Khoá học nháp',
+      value: draftCourses.length,
       icon: EyeOff,
-      gradient: 'bg-slate-100 text-slate-600 border-slate-200',
-      iconColor: 'text-slate-500',
-      borderColor: 'border-l-4 border-l-slate-400',
+      highlighted: draftCourses.length > 0,
     },
     {
       label: 'Học viên đăng ký',
-      value: loadingUsers ? '...' : totalUsers.toString(),
+      value: loadingUsers ? '...' : totalUsers,
       icon: Users,
-      gradient: 'bg-amber-50 text-amber-600 border-amber-100',
-      iconColor: 'text-amber-600',
-      borderColor: 'border-l-4 border-l-amber-500',
+      highlighted: totalUsers > 0,
     },
   ];
 
@@ -75,18 +67,18 @@ export function AdminDashboardPage() {
     .slice(0, 5);
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300 font-sans">
+    <div className="space-y-8 animate-in fade-in duration-200 font-sans">
       
       {/* Dev Banner for Mock Mode */}
       {isMockMode && showDevBanner && (
         <div 
-          className="flex items-start justify-between p-5 bg-amber-50 border border-amber-200 rounded-2xl text-sm text-ink-soft gap-4 shadow-sm border-l-4 border-l-amber-500"
+          className="flex items-start justify-between p-4 bg-amber-50/50 border border-amber-200 rounded-xl text-xs text-slate-700 gap-4"
         >
-          <div className="flex gap-3">
-            <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="flex gap-2.5">
+            <Info className="h-4.5 w-4.5 text-amber-600 shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <span className="font-extrabold text-amber-900 text-base">Chế độ Demo (Mock Mode) đang bật</span>
-              <p className="leading-relaxed text-xs text-amber-800">
+              <span className="font-semibold text-amber-900 text-xs uppercase tracking-wider">Chế độ Demo (Mock Mode) đang bật</span>
+              <p className="leading-relaxed text-[11px] text-amber-800">
                 Bạn đang xem dữ liệu demo lưu cục bộ trên trình duyệt này. Đăng nhập tài khoản quản trị bằng Email: <strong className="font-mono text-amber-950 font-bold">admin@lms.pro</strong> / Mật khẩu: <strong className="font-mono text-amber-950 font-bold">admin123</strong>. 
                 Khi bạn deploy lên Vercel kèm theo các biến cấu hình Firebase thật, hệ thống sẽ tự động chuyển sang chế độ dữ liệu thật kết nối với Firestore.
               </p>
@@ -94,7 +86,7 @@ export function AdminDashboardPage() {
           </div>
           <button 
             onClick={() => setShowDevBanner(false)}
-            className="p-1 rounded-full hover:bg-amber-200/50 text-amber-700/60 hover:text-amber-900 transition-colors cursor-pointer"
+            className="p-1 rounded-full hover:bg-amber-150 text-amber-600 transition-colors cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -103,31 +95,23 @@ export function AdminDashboardPage() {
 
       {/* Welcome Banner Card */}
       <div 
-        className="relative overflow-hidden p-8 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-gradient-to-r from-violet-700 via-purple-800 to-indigo-900 rounded-2xl shadow-lg border border-violet-800/10"
+        className="relative overflow-hidden p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-[#F4F4F0] border border-slate-205 border-slate-200 rounded-xl"
       >
-        {/* Subtle decorative glow overlay */}
-        <div style={{
-          position: 'absolute', width: 400, height: 400, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(245,158,11,0.2) 0%, transparent 65%)',
-          top: -100, right: -100, filter: 'blur(50px)', pointerEvents: 'none'
-        }} />
-        
-        <div className="space-y-3.5 z-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs text-white font-extrabold uppercase tracking-wider">
-            <GraduationCap className="h-4 w-4 text-amber-400" />
-            Hệ thống quản trị LMS
-          </div>
-          <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-white leading-tight">Chào mừng trở lại, Quản trị viên!</h2>
-          <p className="text-sm text-white/80 max-w-xl leading-relaxed">
-            Chào mừng bạn đến với khu vực tổng quan quản lý. Tại đây bạn có thể kiểm soát các khóa học học tập, cấu trúc bài giảng và quản lý phân quyền học viên nhanh chóng.
+        <div className="space-y-1.5 z-10">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+            Khu vực quản trị · LMS Pro
+          </span>
+          <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 leading-tight">Chào mừng trở lại, Quản trị viên</h2>
+          <p className="text-sm text-slate-500 max-w-xl leading-relaxed">
+            Khoá học của bạn chưa có nội dung công khai. Bắt đầu bằng việc tạo khoá học đầu tiên.
           </p>
         </div>
 
         <Link
           to="/admin/courses/new"
-          className="z-10 inline-flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-extrabold px-6 py-4 text-sm shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shadow-amber-500/20"
+          className="z-10 inline-flex items-center gap-1.5 rounded-lg bg-[#191919] hover:bg-black text-white font-semibold px-4 py-2.5 text-xs sm:text-sm transition-colors cursor-pointer"
         >
-          <Plus className="h-5 w-5" strokeWidth={3} />
+          <Plus className="h-4.5 w-4.5" strokeWidth={2.5} />
           Tạo khóa học mới
         </Link>
       </div>
@@ -139,17 +123,21 @@ export function AdminDashboardPage() {
           return (
             <div
               key={idx}
-              className={`p-6 bg-white border border-border rounded-2xl shadow-sm flex items-center justify-between hover:shadow-md hover:scale-[1.02] transition-all duration-300 group ${stat.borderColor}`}
+              className={`p-6 border rounded-xl flex flex-col justify-between h-36 transition-all duration-200 ${
+                stat.highlighted
+                  ? 'bg-indigo-50/50 border-[#4F46E5]/30'
+                  : 'bg-[#F8F9FB] border-slate-200'
+              }`}
             >
-              <div className="space-y-2">
-                <span className="text-xs text-muted uppercase font-bold tracking-wider">{stat.label}</span>
-                <p className="font-mono text-4xl font-black text-ink leading-none">{stat.value}</p>
+              <div className="flex items-center gap-2">
+                <Icon className={`h-4.5 w-4.5 ${stat.highlighted ? 'text-accent' : 'text-slate-400'}`} />
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${stat.highlighted ? 'text-accent' : 'text-slate-400'}`}>
+                  {stat.label}
+                </span>
               </div>
-              <div
-                className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300 ${stat.gradient} border`}
-              >
-                <Icon size={26} strokeWidth={2.5} />
-              </div>
+              <p className={`font-mono text-4xl font-semibold leading-none mt-4 ${stat.highlighted ? 'text-accent' : 'text-slate-900'}`}>
+                {stat.value}
+              </p>
             </div>
           );
         })}
@@ -159,59 +147,59 @@ export function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
         {/* Left: Recent courses table */}
-        <div className="lg:col-span-8 space-y-4">
+        <div className="lg:col-span-8 space-y-6">
           <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="text-base font-extrabold text-ink uppercase tracking-wider">Khóa học cập nhật gần đây</h3>
-              <p className="text-xs text-muted">Danh sách các bài giảng mới được sửa đổi</p>
+            <div className="space-y-0.5">
+              <h2 className="text-lg font-semibold text-slate-900 leading-tight">Khóa học cập nhật gần đây</h2>
+              <p className="text-xs text-slate-505 text-slate-500">Danh sách các bài giảng mới được sửa đổi</p>
             </div>
-            <Link to="/admin/courses" className="inline-flex items-center gap-1.5 text-xs text-accent hover:underline font-extrabold transition-all bg-accent/5 px-3 py-1.5 rounded-lg border border-accent/10 hover:bg-accent/10">
+            <Link to="/admin/courses" className="inline-flex items-center gap-1 text-xs text-accent hover:underline font-semibold transition-all">
               Quản lý tất cả
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
-          <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
             {courses.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="bg-slate-50/70 border-b border-border text-ink-soft uppercase font-extrabold tracking-wider text-xs">
-                      <th className="p-5 pl-6">Khóa học</th>
-                      <th className="p-5">Trạng thái</th>
-                      <th className="p-5">Bài học</th>
-                      <th className="p-5 pr-6 text-right">Thao tác</th>
+                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-550 text-slate-500 uppercase font-bold tracking-wider text-[10px]">
+                      <th className="p-4 pl-6">Khóa học</th>
+                      <th className="p-4">Trạng thái</th>
+                      <th className="p-4">Bài học</th>
+                      <th className="p-4 pr-6 text-right">Thao tác</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border text-sm">
+                  <tbody className="divide-y divide-slate-200 text-sm text-slate-700">
                     {recentCourses.map((course) => {
                       const lessonCount = course.chapters.reduce(
                         (acc, ch) => acc + (ch.lessons?.length || 0), 0
                       );
                       return (
-                        <tr key={course.id} className="hover:bg-slate-50/50 transition-colors text-ink-soft">
-                          <td className="p-5 pl-6 font-extrabold text-ink max-w-xs">
-                            <Link to={`/admin/courses/${course.id}/content`} className="hover:text-accent transition-colors block">
-                              <span className="line-clamp-1 text-sm sm:text-base">{course.title}</span>
+                        <tr key={course.id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="p-4 pl-6 font-semibold text-slate-900 max-w-xs">
+                            <Link to={`/admin/courses/${course.id}/content`} className="hover:text-accent transition-colors block truncate">
+                              {course.title}
                             </Link>
-                            <span className="block text-[10px] text-muted font-mono font-normal mt-1">{course.slug}</span>
+                            <span className="block text-[9px] text-slate-400 font-mono font-normal mt-0.5">{course.slug}</span>
                           </td>
-                          <td className="p-5">
-                            <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-extrabold uppercase shadow-xs ${
+                          <td className="p-4">
+                            <span className={`inline-flex px-2.5 py-0.5 rounded text-[9px] font-bold uppercase ${
                               course.status === 'published'
-                                ? 'bg-success text-white'
-                                : 'bg-slate-400 text-white'
+                                ? 'bg-indigo-50 border border-indigo-100 text-accent'
+                                : 'bg-slate-100 border border-slate-200 text-slate-500'
                             }`}>
                               {course.status === 'published' ? 'Đã đăng' : 'Bản nháp'}
                             </span>
                           </td>
-                          <td className="p-5 font-mono font-bold text-ink">{lessonCount} bài học</td>
-                          <td className="p-5 pr-6 text-right">
+                          <td className="p-4 font-mono text-slate-800">{lessonCount} bài học</td>
+                          <td className="p-4 pr-6 text-right">
                             <div className="flex items-center justify-end gap-4">
-                              <Link to={`/admin/courses/${course.id}/edit`} className="text-xs font-bold text-accent hover:text-accent-deep transition-colors bg-accent/5 px-2.5 py-1.5 rounded-lg border border-accent/15">
+                              <Link to={`/admin/courses/${course.id}/edit`} className="text-xs font-semibold text-accent hover:underline">
                                 Sửa
                               </Link>
-                              <Link to={`/admin/courses/${course.id}/content`} className="text-xs font-bold text-ink-soft hover:text-ink transition-colors bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200">
+                              <Link to={`/admin/courses/${course.id}/content`} className="text-xs font-semibold text-slate-600 hover:text-slate-955 hover:text-slate-900">
                                 Nội dung
                               </Link>
                             </div>
@@ -223,18 +211,17 @@ export function AdminDashboardPage() {
                 </table>
               </div>
             ) : (
-              <div className="p-16 flex flex-col items-center justify-center text-center text-ink-soft">
-                <div className="p-4 rounded-full bg-slate-50 border border-border mb-4">
-                  <BookOpen className="h-10 w-10 text-muted" />
+              <div className="border-dashed border-2 border-slate-200 bg-white rounded-xl p-8 sm:p-10 flex flex-col items-center justify-center text-center">
+                <div className="p-3 bg-slate-50 border border-slate-100 rounded-full mb-4">
+                  <BookOpen className="h-6 w-6 text-slate-400" />
                 </div>
-                <p className="font-extrabold text-base text-ink">Chưa có khóa học nào</p>
-                <p className="text-xs text-muted mt-1 mb-6 max-w-sm">Bắt đầu bằng cách tạo khóa học đầu tiên của bạn để chia sẻ tri thức.</p>
+                <p className="font-semibold text-slate-900 text-sm">Chưa có khoá học nào</p>
+                <p className="text-xs text-slate-500 mt-1 mb-5">Tạo khoá học đầu tiên để chia sẻ tri thức của bạn.</p>
                 <Link
                   to="/admin/courses/new"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-accent px-5 py-3 text-xs font-bold text-white shadow-md hover:bg-accent/95 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 px-4 py-2.5 rounded-lg text-xs font-semibold shadow-xs transition-colors"
                 >
-                  <FilePlus className="h-4.5 w-4.5" />
-                  Tạo khóa học đầu tiên
+                  Tạo khoá học đầu tiên ↗
                 </Link>
               </div>
             )}
@@ -242,57 +229,57 @@ export function AdminDashboardPage() {
         </div>
 
         {/* Right: Editorial Process Guide */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="space-y-1">
-            <h3 className="text-base font-extrabold text-ink uppercase tracking-wider">Quy trình biên soạn</h3>
-            <p className="text-xs text-muted">Các bước xuất bản khóa học tiêu chuẩn</p>
+        <div className="lg:col-span-4 space-y-6">
+          <div className="space-y-0.5">
+            <h2 className="text-lg font-semibold text-slate-900 leading-tight">Quy trình biên soạn</h2>
+            <p className="text-xs text-slate-500">Các bước xuất bản khoá học tiêu chuẩn</p>
           </div>
           
-          <div className="p-6 space-y-6 text-sm text-ink-soft bg-white border border-border rounded-2xl shadow-sm">
-            <div className="relative pl-7 space-y-7">
+          <div className="p-6 space-y-6 text-xs text-slate-600 bg-white border border-slate-205 border-slate-200 rounded-xl">
+            <div className="relative pl-6 space-y-6">
               {/* Stepper vertical line */}
-              <div className="absolute left-3.5 top-3 bottom-3 w-0.5 bg-slate-200" />
+              <div className="absolute left-2.5 top-2.5 bottom-2.5 w-px bg-slate-100" />
 
               <div className="relative flex gap-3">
-                <span className="absolute -left-7.5 w-7 h-7 rounded-full bg-accent border-2 border-white text-xs font-bold text-white flex items-center justify-center shadow-sm">1</span>
+                <span className="absolute -left-6 w-6 h-6 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-500 flex items-center justify-center shadow-xs shrink-0 mt-0.5">1</span>
                 <div>
-                  <p className="font-extrabold text-ink text-sm leading-tight">Tạo mới thông tin khóa học</p>
-                  <p className="text-xs text-muted mt-1.5 leading-relaxed">Đặt tiêu đề, mô tả ngắn, mô tả chi tiết, hình ảnh banner và thumbnail.</p>
+                  <p className="font-semibold text-slate-800 text-xs">Tạo thông tin khoá học</p>
+                  <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">Tiêu đề, mô tả, banner, thumbnail</p>
                 </div>
               </div>
 
               <div className="relative flex gap-3">
-                <span className="absolute -left-7.5 w-7 h-7 rounded-full bg-accent border-2 border-white text-xs font-bold text-white flex items-center justify-center shadow-sm">2</span>
+                <span className="absolute -left-6 w-6 h-6 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-500 flex items-center justify-center shadow-xs shrink-0 mt-0.5">2</span>
                 <div>
-                  <p className="font-extrabold text-ink text-sm leading-tight">Thiết kế cấu trúc chương</p>
-                  <p className="text-xs text-muted mt-1.5 leading-relaxed">Bấm vào mục "Nội dung" trên khóa học, tiến hành thêm các chương học chính.</p>
+                  <p className="font-semibold text-slate-800 text-xs">Thiết kế cấu trúc chương</p>
+                  <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">Thêm chương học chính</p>
                 </div>
               </div>
 
               <div className="relative flex gap-3">
-                <span className="absolute -left-7.5 w-7 h-7 rounded-full bg-accent border-2 border-white text-xs font-bold text-white flex items-center justify-center shadow-sm">3</span>
+                <span className="absolute -left-6 w-6 h-6 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-500 flex items-center justify-center shadow-xs shrink-0 mt-0.5">3</span>
                 <div>
-                  <p className="font-extrabold text-ink text-sm leading-tight">Đăng bài giảng & tài liệu</p>
-                  <p className="text-xs text-muted mt-1.5 leading-relaxed">Upload bài học video lên Storage, gắn kèm PDF, tài liệu và tạo các câu hỏi trắc nghiệm kiểm tra.</p>
+                  <p className="font-semibold text-slate-800 text-xs">Đăng bài giảng & tài liệu</p>
+                  <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">Video, PDF, câu hỏi kiểm tra</p>
                 </div>
               </div>
 
               <div className="relative flex gap-3">
-                <span className="absolute -left-7.5 w-7 h-7 rounded-full bg-accent border-2 border-white text-xs font-bold text-white flex items-center justify-center shadow-sm">4</span>
+                <span className="absolute -left-6 w-6 h-6 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-500 flex items-center justify-center shadow-xs shrink-0 mt-0.5">4</span>
                 <div>
-                  <p className="font-extrabold text-ink text-sm leading-tight">Thay đổi trạng thái xuất bản</p>
-                  <p className="text-xs text-muted mt-1.5 leading-relaxed">Chuyển trạng thái khóa học sang "Đã đăng" để bắt đầu cho học viên học tập.</p>
+                  <p className="font-semibold text-slate-800 text-xs">Thay đổi trạng thái xuất bản</p>
+                  <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">Chuyển sang "Đã đăng"</p>
                 </div>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-border">
+            <div className="pt-4 border-t border-slate-200">
               <Link 
                 to="/admin/courses" 
-                className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-slate-50 p-3 text-xs font-bold text-ink hover:bg-slate-100 hover:text-accent transition-all cursor-pointer shadow-xs"
+                className="w-full inline-flex items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white p-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 Đi tới danh sách khóa học
-                <ChevronRight className="h-4 w-4 text-muted" />
+                <ChevronRight className="h-4 w-4 text-slate-400" />
               </Link>
             </div>
           </div>

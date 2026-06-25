@@ -1,6 +1,6 @@
 import { useAuthStore } from '@/store/authStore';
 import { useCourseStore } from '@/store/courseStore';
-import { BookOpen, Award, Clock, Flame, Play, Sparkles } from 'lucide-react';
+import { BookOpen, Award, Clock, Flame, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function DashboardPage() {
@@ -34,34 +34,49 @@ export function DashboardPage() {
     };
   });
 
+  const statsList = [
+    { 
+      icon: BookOpen, 
+      label: 'Khóa đang học', 
+      value: stats.inProgressCount, 
+      highlighted: stats.inProgressCount > 0 
+    },
+    { 
+      icon: Award, 
+      label: 'Khóa hoàn thành', 
+      value: stats.completedCount, 
+      highlighted: stats.completedCount > 0 
+    },
+    { 
+      icon: Clock, 
+      label: 'Thời gian học tập', 
+      value: stats.totalLearningHours, 
+      highlighted: totalCourses > 0 
+    },
+  ];
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-300">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-300 font-sans">
       
       {/* Profile Header Block */}
       <div 
-        style={{
-          background: 'var(--color-paper-raised)',
-          border: '1px solid var(--color-border)',
-          boxShadow: '0 4px 20px rgba(27,42,74,0.02)'
-        }}
-        className="rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:shadow-[0_8px_30px_rgba(27,42,74,0.04)] transition-shadow"
+        className="border border-slate-200 bg-white rounded-xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 transition-all duration-200"
       >
         <div className="flex items-center gap-4 flex-wrap">
           <img
             src={user?.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.uid || 'guest'}`}
             alt="Avatar"
-            style={{ border: '2px solid var(--color-border)' }}
-            className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-paper object-cover flex-shrink-0"
+            className="h-16 w-16 sm:h-20 sm:w-20 rounded-full border border-slate-200 bg-slate-50 object-cover flex-shrink-0"
           />
           <div className="space-y-2">
-            <h1 className="font-display text-xl sm:text-2xl font-bold text-ink leading-tight">
+            <h1 className="font-display text-xl sm:text-2xl font-semibold text-slate-900 leading-tight">
               Chào mừng quay lại, {user?.displayName || 'Học viên'}
             </h1>
             <div className="flex items-center gap-3">
-              <span className="font-mono text-[9px] font-bold text-accent bg-accent/10 border border-accent/25 px-2 py-0.5 rounded-md uppercase tracking-wider">
+              <span className="font-mono text-[9px] font-bold text-indigo-650 bg-indigo-50 border border-indigo-200/50 px-2 py-0.5 rounded-md uppercase tracking-wider">
                 Cấp độ {stats.level}
               </span>
-              <span className="text-xs font-bold text-muted font-mono">
+              <span className="text-xs font-bold text-slate-500 font-mono">
                 {stats.xp} XP tích lũy
               </span>
             </div>
@@ -69,13 +84,17 @@ export function DashboardPage() {
         </div>
 
         {/* Streak Stamp */}
-        <div className="flex items-center gap-3 bg-accent/5 border border-accent/15 rounded-2xl px-5 py-3 shrink-0">
-          <Flame className="h-6 w-6 text-accent fill-accent" />
+        <div className={`flex items-center gap-3 border rounded-xl px-5 py-3 shrink-0 transition-all duration-200 ${
+          stats.streakDays > 0 
+            ? 'bg-indigo-50/50 border-indigo-200 text-indigo-650' 
+            : 'bg-slate-50 border-slate-200 text-slate-400'
+        }`}>
+          <Flame className={`h-6 w-6 ${stats.streakDays > 0 ? 'text-indigo-600 fill-indigo-600' : 'text-slate-400'}`} />
           <div className="space-y-0.5">
-            <div className="font-mono text-xl font-extrabold text-ink leading-none">
+            <div className={`font-mono text-xl font-semibold leading-none ${stats.streakDays > 0 ? 'text-indigo-650' : 'text-slate-700'}`}>
               {stats.streakDays} ngày
             </div>
-            <div className="text-[9px] text-ink-soft font-bold uppercase tracking-wider">
+            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
               Học liên tục
             </div>
           </div>
@@ -84,45 +103,34 @@ export function DashboardPage() {
 
       {/* Stats Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {[
-          { icon: BookOpen, label: 'Khóa đang học', value: stats.inProgressCount, color: 'var(--color-accent)' },
-          { icon: Award, label: 'Khóa hoàn thành', value: stats.completedCount, color: 'var(--color-success)' },
-          { icon: Clock, label: 'Thời gian học tập', value: stats.totalLearningHours, color: 'var(--color-ink)' },
-        ].map((item, idx) => (
-          <div 
-            key={idx} 
-            style={{
-              background: 'var(--color-paper-raised)',
-              border: '1px solid var(--color-border)',
-              boxShadow: '0 4px 16px rgba(27,42,74,0.02)'
-            }}
-            className="rounded-2xl p-6 flex items-center gap-4 hover:shadow-[0_8px_30px_rgba(27,42,74,0.05)] hover:border-accent/10 transition-all group duration-300"
-          >
-            <div 
-              style={{
-                backgroundColor: `${item.color}10`,
-                border: `1px solid ${item.color}25`,
-                color: item.color,
-              }}
-              className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform"
+        {statsList.map((stat, idx) => {
+          const Icon = stat.icon;
+          return (
+            <div
+              key={idx}
+              className={`p-6 border rounded-xl flex flex-col justify-between h-36 transition-all duration-200 ${
+                stat.highlighted
+                  ? 'bg-indigo-50/50 border-[#4F46E5]/30'
+                  : 'bg-[#F8F9FB] border-slate-200'
+              }`}
             >
-              <item.icon className="h-5 w-5" />
-            </div>
-            <div className="space-y-1">
-              <span className="text-[10px] font-bold text-muted uppercase tracking-wider block leading-none">
-                {item.label}
-              </span>
-              <p className="font-mono text-lg font-bold text-ink leading-tight">
-                {item.value}
+              <div className="flex items-center gap-2">
+                <Icon className={`h-4.5 w-4.5 ${stat.highlighted ? 'text-indigo-650' : 'text-slate-400'}`} />
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${stat.highlighted ? 'text-indigo-650' : 'text-slate-400'}`}>
+                  {stat.label}
+                </span>
+              </div>
+              <p className={`font-mono text-3xl font-semibold leading-none mt-4 ${stat.highlighted ? 'text-indigo-650' : 'text-slate-900'}`}>
+                {stat.value}
               </p>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Continue learning rail */}
       <div className="space-y-4">
-        <h2 className="font-display text-lg font-bold text-ink pl-1">
+        <h2 className="font-display text-lg font-semibold text-slate-900 leading-tight">
           Tiếp tục hành trình học tập
         </h2>
 
@@ -131,29 +139,23 @@ export function DashboardPage() {
             {inProgressEnrollments.map((item) => (
               <div 
                 key={item.id} 
-                style={{
-                  background: 'var(--color-paper-raised)',
-                  border: '1px solid var(--color-border)',
-                  boxShadow: '0 4px 20px rgba(27,42,74,0.02)'
-                }}
-                className="rounded-2xl p-4 flex items-center gap-4 hover:shadow-[0_8px_30px_rgba(27,42,74,0.05)] transition-all group duration-300"
+                className="border border-slate-200 bg-white rounded-xl p-4 flex items-center gap-4 transition-all group duration-200"
               >
                 <img
                   src={item.thumbnailUrl}
                   alt={item.courseTitle}
-                  style={{ border: '1px solid var(--color-border)' }}
-                  className="w-24 sm:w-28 aspect-video object-cover rounded-xl bg-paper flex-shrink-0"
+                  className="w-24 sm:w-28 aspect-video object-cover rounded-lg border border-slate-200 bg-slate-50 flex-shrink-0"
                 />
                 
                 <div className="flex-1 min-w-0 flex flex-col gap-3 justify-center">
-                  <h3 className="text-sm font-bold text-ink truncate leading-tight group-hover:text-accent transition-colors">
+                  <h3 className="text-sm font-semibold text-slate-900 truncate leading-tight group-hover:text-indigo-650 transition-colors">
                     <Link to={`/courses/${item.slug}`} className="hover:underline">
                       {item.courseTitle}
                     </Link>
                   </h3>
                   
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center text-[10px] text-ink-soft">
+                    <div className="flex justify-between items-center text-[10px] text-slate-500">
                       <span className="truncate max-w-[70%] font-medium">
                         Đang học: {item.lastLessonTitle}
                       </span>
@@ -161,10 +163,10 @@ export function DashboardPage() {
                     </div>
 
                     {/* Progress Bar */}
-                    <div style={{ border: '1px solid var(--color-border)' }} className="h-2.5 bg-paper rounded-full overflow-hidden">
+                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
                       <div 
                         style={{ width: `${item.completionPercent}%` }} 
-                        className="h-full bg-accent rounded-full transition-all duration-300" 
+                        className="h-full bg-indigo-600 rounded-full transition-all duration-300" 
                       />
                     </div>
                   </div>
@@ -173,11 +175,7 @@ export function DashboardPage() {
                 {/* Play Button */}
                 <Link
                   to={`/app/learn/${item.courseId}/${item.firstLessonId}`}
-                  style={{
-                    backgroundColor: 'var(--color-accent)',
-                    boxShadow: '0 4px 10px rgba(224,115,74,0.25)'
-                  }}
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-white shrink-0 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                  className="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-755 flex items-center justify-center text-white shrink-0 transition-colors cursor-pointer"
                 >
                   <Play className="h-4 w-4 fill-white pl-0.5" />
                 </Link>
@@ -185,32 +183,21 @@ export function DashboardPage() {
             ))}
           </div>
         ) : (
-          <div 
-            style={{
-              background: 'var(--color-paper-raised)',
-              border: '1px solid var(--color-border)',
-              boxShadow: '0 4px 20px rgba(27,42,74,0.02)'
-            }}
-            className="rounded-2xl p-8 sm:p-12 flex flex-col items-center justify-center text-center max-w-md mx-auto"
-          >
-            <div className="p-3 bg-paper border border-border rounded-full mb-4">
-              <BookOpen className="h-8 w-8 text-muted" />
+          <div className="border-dashed border-2 border-slate-200 bg-white rounded-xl p-8 sm:p-12 flex flex-col items-center justify-center text-center max-w-md mx-auto">
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-full mb-4">
+              <BookOpen className="h-6 w-6 text-slate-400" />
             </div>
-            <h3 className="font-display text-base font-bold text-ink mb-1">
+            <h3 className="font-display text-sm font-bold text-slate-900 mb-1">
               Chưa có khóa học hoạt động
             </h3>
-            <p className="text-xs text-ink-soft leading-relaxed mb-6">
-              Bạn chưa tham gia khóa học nào. Hãy chọn khóa học phù hợp tại thư viện để bắt đầu hành trình tích lũy điểm kinh nghiệm và duy trì chuỗi học tập.
+            <p className="text-xs text-slate-500 leading-relaxed mb-6">
+              Bạn chưa tham gia khóa học nào. Hãy chọn khóa học phù hợp tại thư viện để bắt đầu hành trình học tập.
             </p>
             <Link
               to="/courses"
-              style={{
-                backgroundColor: 'var(--color-accent)',
-                boxShadow: '0 4px 12px rgba(224,115,74,0.25)'
-              }}
-              className="rounded-xl text-white text-xs font-bold px-5 py-2.5 hover:bg-accent/95 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#191919] hover:bg-black text-white font-semibold px-4 py-2.5 text-xs transition-colors cursor-pointer"
             >
-              Khám phá khóa học ngay →
+              Khám phá khóa học ngay ↗
             </Link>
           </div>
         )}
