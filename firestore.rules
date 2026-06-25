@@ -74,10 +74,11 @@ service cloud.firestore {
     // ---- USERS ----
     match /users/{userId} {
       allow read: if isSignedIn();
-      allow update: if isOwner(userId)
-        && !('role' in request.resource.data.diff(resource.data).affectedKeys());
+      allow update: if (isOwner(userId) && !('role' in request.resource.data.diff(resource.data).affectedKeys()))
+        || isAdmin();
       allow create: if isOwner(userId);
       allow delete: if isAdmin();
     }
+
   }
 }

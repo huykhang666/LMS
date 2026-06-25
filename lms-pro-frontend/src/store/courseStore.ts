@@ -7,6 +7,8 @@
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase/firestore';
 
 /* ─── Domain types (lightweight, localStorage-friendly) ────────────────── */
 
@@ -57,6 +59,7 @@ export interface StoredCourse {
 
 interface CourseState {
   courses: StoredCourse[];
+  setCourses: (courses: StoredCourse[]) => void;
 
   // CRUD – courses
   addCourse: (course: StoredCourse) => void;
@@ -87,6 +90,30 @@ function now() {
   return new Date().toISOString();
 }
 
+const isMockMode = !import.meta.env.VITE_FIREBASE_API_KEY || 
+                   import.meta.env.VITE_FIREBASE_API_KEY.includes('Dummy') ||
+                   import.meta.env.VITE_FIREBASE_API_KEY.includes('dummy');
+
+// Async helper to write course to Firestore in real-time
+const syncCourseToFirestore = async (course: StoredCourse) => {
+  if (isMockMode) return;
+  try {
+    await setDoc(doc(db, 'courses', course.id), course);
+  } catch (err) {
+    console.error('Error syncing course to Firestore:', err);
+  }
+};
+
+// Async helper to delete course from Firestore in real-time
+const deleteCourseFromFirestore = async (id: string) => {
+  if (isMockMode) return;
+  try {
+    await deleteDoc(doc(db, 'courses', id));
+  } catch (err) {
+    console.error('Error deleting course from Firestore:', err);
+  }
+};
+
 /* ─── Store ─────────────────────────────────────────────────────────────── */
 
 export const useCourseStore = create<CourseState>()(
@@ -94,40 +121,56 @@ export const useCourseStore = create<CourseState>()(
     (set, get) => ({
       courses: [],
 
+      setCourses: (courses) => set({ courses }),
+
       /* ── Course CRUD ── */
-      addCourse: (course) =>
-        set((s) => ({ courses: [...s.courses, course] })),
+      addCourse: (course) => {
+        set((s) => ({ courses: [...s.courses, course] }));
+        syncCourseToFirestore(course);
+      },
 
       updateCourse: (id, patch) =>
-        set((s) => ({
-          courses: s.courses.map((c) =>
+        set((s) => {
+          const updatedCourses = s.courses.map((c) =>
             c.id === id ? { ...c, ...patch, updatedAt: now() } : c
-          ),
-        })),
+          );
+          const updated = updatedCourses.find((c) => c.id === id);
+          if (updated) syncCourseToFirestore(updated);
+          return { courses: updatedCourses };
+        }),
 
-      deleteCourse: (id) =>
-        set((s) => ({ courses: s.courses.filter((c) => c.id !== id) })),
+      deleteCourse: (id) => {
+        set((s) => ({ courses: s.courses.filter((c) => c.id !== id) }));
+        deleteCourseFromFirestore(id);
+      },
 
       publishCourse: (id) =>
-        set((s) => ({
-          courses: s.courses.map((c) =>
-            c.id === id ? { ...c, status: 'published', updatedAt: now() } : c
-          ),
-        })),
+        set((s) => {
+          const updatedCourses = s.courses.map((c) =>
+            c.id === id ? { ...c, status: 'published' as CourseStatus, updatedAt: now() } : c
+          );
+          const updated = updatedCourses.find((c) => c.id === id);
+          if (updated) syncCourseToFirestore(updated);
+          return { courses: updatedCourses };
+        }),
+
 
       /* ── Chapter CRUD ── */
       addChapter: (courseId, chapter) =>
-        set((s) => ({
-          courses: s.courses.map((c) =>
+        set((s) => {
+          const updatedCourses = s.courses.map((c) =>
             c.id === courseId
               ? { ...c, chapters: [...c.chapters, chapter], updatedAt: now() }
               : c
-          ),
-        })),
+          );
+          const updated = updatedCourses.find((c) => c.id === courseId);
+          if (updated) syncCourseToFirestore(updated);
+          return { courses: updatedCourses };
+        }),
 
       updateChapter: (courseId, chapterId, patch) =>
-        set((s) => ({
-          courses: s.courses.map((c) =>
+        set((s) => {
+          const updatedCourses = s.courses.map((c) =>
             c.id === courseId
               ? {
                   ...c,
@@ -137,12 +180,15 @@ export const useCourseStore = create<CourseState>()(
                   ),
                 }
               : c
-          ),
-        })),
+          );
+          const updated = updatedCourses.find((c) => c.id === courseId);
+          if (updated) syncCourseToFirestore(updated);
+          return { courses: updatedCourses };
+        }),
 
       deleteChapter: (courseId, chapterId) =>
-        set((s) => ({
-          courses: s.courses.map((c) =>
+        set((s) => {
+          const updatedCourses = s.courses.map((c) =>
             c.id === courseId
               ? {
                   ...c,
@@ -150,20 +196,26 @@ export const useCourseStore = create<CourseState>()(
                   chapters: c.chapters.filter((ch) => ch.id !== chapterId),
                 }
               : c
-          ),
-        })),
+          );
+          const updated = updatedCourses.find((c) => c.id === courseId);
+          if (updated) syncCourseToFirestore(updated);
+          return { courses: updatedCourses };
+        }),
 
       reorderChapters: (courseId, chapters) =>
-        set((s) => ({
-          courses: s.courses.map((c) =>
+        set((s) => {
+          const updatedCourses = s.courses.map((c) =>
             c.id === courseId ? { ...c, chapters, updatedAt: now() } : c
-          ),
-        })),
+          );
+          const updated = updatedCourses.find((c) => c.id === courseId);
+          if (updated) syncCourseToFirestore(updated);
+          return { courses: updatedCourses };
+        }),
 
       /* ── Lesson CRUD ── */
       addLesson: (courseId, chapterId, lesson) =>
-        set((s) => ({
-          courses: s.courses.map((c) =>
+        set((s) => {
+          const updatedCourses = s.courses.map((c) =>
             c.id === courseId
               ? {
                   ...c,
@@ -175,12 +227,15 @@ export const useCourseStore = create<CourseState>()(
                   ),
                 }
               : c
-          ),
-        })),
+          );
+          const updated = updatedCourses.find((c) => c.id === courseId);
+          if (updated) syncCourseToFirestore(updated);
+          return { courses: updatedCourses };
+        }),
 
       updateLesson: (courseId, chapterId, lessonId, patch) =>
-        set((s) => ({
-          courses: s.courses.map((c) =>
+        set((s) => {
+          const updatedCourses = s.courses.map((c) =>
             c.id === courseId
               ? {
                   ...c,
@@ -197,12 +252,15 @@ export const useCourseStore = create<CourseState>()(
                   ),
                 }
               : c
-          ),
-        })),
+          );
+          const updated = updatedCourses.find((c) => c.id === courseId);
+          if (updated) syncCourseToFirestore(updated);
+          return { courses: updatedCourses };
+        }),
 
       deleteLesson: (courseId, chapterId, lessonId) =>
-        set((s) => ({
-          courses: s.courses.map((c) =>
+        set((s) => {
+          const updatedCourses = s.courses.map((c) =>
             c.id === courseId
               ? {
                   ...c,
@@ -214,8 +272,11 @@ export const useCourseStore = create<CourseState>()(
                   ),
                 }
               : c
-          ),
-        })),
+          );
+          const updated = updatedCourses.find((c) => c.id === courseId);
+          if (updated) syncCourseToFirestore(updated);
+          return { courses: updatedCourses };
+        }),
 
       /* ── Selectors ── */
       getCourse: (id) => get().courses.find((c) => c.id === id),
