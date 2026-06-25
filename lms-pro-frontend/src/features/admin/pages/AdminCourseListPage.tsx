@@ -1,6 +1,8 @@
-import { Plus, Edit, BookOpen, Trash2, Eye, EyeOff, FilePlus, ChevronRight } from 'lucide-react';
+import { Plus, BookOpen, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCourseStore, StoredCourse } from '@/store/courseStore';
+import { EmptyState } from '@/shared/components/ui/EmptyState';
+import { cn } from '@/shared/utils/cn';
 
 const categoryLabels: Record<string, string> = {
   math: 'Toán học',
@@ -41,25 +43,25 @@ export function AdminCourseListPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="font-display text-2xl font-semibold text-slate-900 tracking-tight">Quản lý khóa học</h1>
-          <p className="text-xs text-slate-500">Xem danh sách, quản lý cấu trúc bài giảng và xuất bản các khóa học của hệ thống.</p>
+          <h1 className="font-display text-2xl font-semibold text-ink tracking-tight">Quản lý khóa học</h1>
+          <p className="text-xs text-muted">Xem danh sách, quản lý cấu trúc bài giảng và xuất bản các khóa học của hệ thống.</p>
         </div>
         <Link
           to="/admin/courses/new"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[#191919] hover:bg-black text-white font-semibold px-4 py-2.5 text-xs sm:text-sm transition-colors cursor-pointer"
+          className="bg-ink hover:bg-ink-soft text-paper-raised font-body font-medium text-sm px-4 py-2.5 rounded-md flex items-center gap-2 flex-shrink-0 transition-colors cursor-pointer"
         >
-          <Plus className="h-4.5 w-4.5" strokeWidth={2.5} />
+          <Plus className="w-4 h-4" />
           Thêm khóa học mới
         </Link>
       </div>
 
       {/* Table Container */}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+      <div className="bg-paper-raised border border-border rounded-md overflow-hidden">
         {courses.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-550 text-slate-500 uppercase font-bold tracking-wider text-[10px]">
+                <tr className="bg-paper border-b border-border text-muted uppercase font-semibold tracking-wide text-xs">
                   <th className="p-4 pl-6">Khóa học</th>
                   <th className="p-4">Chuyên mục</th>
                   <th className="p-4">Trạng thái</th>
@@ -67,19 +69,19 @@ export function AdminCourseListPage() {
                   <th className="p-4 pr-6 text-right">Thao tác</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 text-sm text-slate-700">
+              <tbody className="divide-y divide-border text-sm text-ink-soft">
                 {courses.map((course) => (
-                  <tr key={course.id} className="hover:bg-slate-50/50 transition-colors">
+                  <tr key={course.id} className="hover:bg-paper/50 transition-colors">
                     
                     {/* Title and slug */}
                     <td className="p-4 pl-6">
-                      <p className="font-semibold text-slate-900 text-sm sm:text-base leading-tight">{course.title}</p>
-                      <span className="text-[9px] text-slate-450 text-slate-400 font-mono block mt-0.5">{course.slug}</span>
+                      <p className="font-semibold text-ink text-sm sm:text-base leading-tight">{course.title}</p>
+                      <span className="text-[9px] text-muted font-mono block mt-0.5">{course.slug}</span>
                     </td>
 
                     {/* Category */}
-                    <td className="p-4 font-medium text-slate-700">
-                      <span className="inline-flex px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-semibold text-slate-600">
+                    <td className="p-4 font-medium text-ink-soft">
+                      <span className="inline-flex px-2 py-0.5 rounded-sm bg-paper-dim border border-border text-[10px] font-semibold text-ink-soft">
                         {categoryLabels[course.category] || course.category}
                       </span>
                     </td>
@@ -89,10 +91,10 @@ export function AdminCourseListPage() {
                       <button
                         onClick={() => handleTogglePublish(course)}
                         title="Bấm để đổi trạng thái"
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[9px] font-bold uppercase transition-all duration-150 cursor-pointer ${
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-sm text-[10px] font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer border ${
                           course.status === 'published' 
-                            ? 'bg-indigo-50 border border-indigo-100 text-accent hover:bg-indigo-100/70' 
-                            : 'bg-slate-100 border border-slate-200 text-slate-500 hover:bg-slate-200/70'
+                            ? 'bg-success-soft border-success/15 text-success hover:bg-success-soft/80' 
+                            : 'bg-paper-dim border-border text-ink-soft hover:bg-paper-dim/80'
                         }`}
                       >
                         {course.status === 'published' ? (
@@ -110,8 +112,8 @@ export function AdminCourseListPage() {
                     </td>
 
                     {/* Course Metrics */}
-                    <td className="p-4 font-mono text-slate-600">
-                      <strong className="text-slate-900 font-semibold">{course.chapters?.length || 0}</strong> chương / <strong className="text-slate-900 font-semibold">{getLessonsCount(course)}</strong> bài học
+                    <td className="p-4 font-mono text-ink-soft">
+                      <strong className="text-ink font-semibold">{course.chapters?.length || 0}</strong> chương / <strong className="text-ink font-semibold">{getLessonsCount(course)}</strong> bài học
                     </td>
 
                     {/* Actions buttons */}
@@ -125,13 +127,13 @@ export function AdminCourseListPage() {
                         </Link>
                         <Link 
                           to={`/admin/courses/${course.id}/content`} 
-                          className="text-xs font-semibold text-slate-600 hover:text-slate-900"
+                          className="text-xs font-semibold text-ink-soft hover:text-ink"
                         >
                           Bài giảng
                         </Link>
                         <button 
                           onClick={() => handleDelete(course.id, course.title)}
-                          className="text-xs font-semibold text-red-600 hover:underline cursor-pointer"
+                          className="text-xs font-semibold text-danger hover:underline cursor-pointer"
                         >
                           Xóa
                         </button>
@@ -144,19 +146,14 @@ export function AdminCourseListPage() {
             </table>
           </div>
         ) : (
-          <div className="border-dashed border-2 border-slate-200 bg-white rounded-xl p-8 sm:p-12 flex flex-col items-center justify-center text-center">
-            <div className="p-3 bg-slate-50 border border-slate-100 rounded-full mb-4">
-              <BookOpen className="h-6 w-6 text-slate-400" />
-            </div>
-            <p className="font-semibold text-slate-900 text-sm">Chưa có khoá học nào được tải lên</p>
-            <p className="text-xs text-slate-500 mt-1 mb-5">Bạn chưa soạn thảo khóa học nào trong hệ thống.</p>
-            <Link
-              to="/admin/courses/new"
-              className="inline-flex items-center gap-1.5 border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 px-4 py-2.5 rounded-lg text-xs font-semibold shadow-xs"
-            >
-              Thêm khóa học đầu tiên ↗
-            </Link>
-          </div>
+          <EmptyState
+            icon={BookOpen}
+            title="Chưa có khóa học nào được tạo"
+            description="Soạn khóa học đầu tiên để bắt đầu xây dựng nội dung cho hệ thống."
+            actionLabel="Thêm khóa học đầu tiên"
+            actionLink="/admin/courses/new"
+            variant="admin"
+          />
         )}
       </div>
 

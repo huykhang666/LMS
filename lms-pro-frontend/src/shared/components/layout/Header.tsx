@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { useAuthActions } from '@/features/auth/hooks/useAuth';
+import { cn } from '@/shared/utils/cn';
 import {
   BookOpen, Menu, X, ChevronDown, LogOut, LayoutDashboard,
   FileText, Sparkles
@@ -101,36 +102,27 @@ export function Header() {
             ...(user?.role === 'admin' ? [
               { label: 'Admin', to: '/admin' },
             ] : []),
-          ].map(link => (
-            <Link
-              key={link.to}
-              to={link.to}
-              style={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: isTransparent
-                  ? 'rgba(255,255,255,0.8)'
-                  : location.pathname === link.to
-                  ? 'var(--color-accent)'
-                  : 'var(--color-ink-soft)',
-                textDecoration: 'none',
-                transition: 'color 0.15s',
-                whiteSpace: 'nowrap',
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.color = isTransparent ? '#fff' : 'var(--color-accent)';
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.color = isTransparent
-                  ? 'rgba(255,255,255,0.8)'
-                  : location.pathname === link.to
-                  ? 'var(--color-accent)'
-                  : 'var(--color-ink-soft)';
-              }}
-            >
-              {link.label}
-            </Link>
-          ))}
+          ].map(link => {
+            const isActive = location.pathname === link.to;
+            return (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={cn(
+                  'font-body text-sm pb-1 border-b-2 transition-all',
+                  isTransparent
+                    ? isActive
+                      ? 'text-paper-raised border-accent font-medium'
+                      : 'text-white/80 border-transparent hover:text-paper-raised'
+                    : isActive
+                    ? 'text-ink border-accent font-medium'
+                    : 'text-muted border-transparent hover:text-ink-soft'
+                )}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* ── Auth area ── */}

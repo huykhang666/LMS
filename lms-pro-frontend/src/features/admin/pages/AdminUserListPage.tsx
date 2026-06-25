@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Shield, Ban, MoreVertical, ShieldAlert, CheckCircle, Search, UserCheck } from 'lucide-react';
+import { Shield, Ban, MoreVertical, Search } from 'lucide-react';
 import { collection, onSnapshot, updateDoc, doc, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/firestore';
+import { cn } from '@/shared/utils/cn';
 
 const isMockMode = !import.meta.env.VITE_FIREBASE_API_KEY || 
                    import.meta.env.VITE_FIREBASE_API_KEY.includes('Dummy') ||
@@ -158,37 +159,35 @@ export function AdminUserListPage() {
       {/* Title */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="font-display text-2xl font-semibold text-slate-900 tracking-tight">Quản lý học viên</h1>
-          <p className="text-xs text-slate-500">Danh sách tài khoản học viên đăng ký trên hệ thống và phân chia vai trò quản trị.</p>
+          <h1 className="font-display text-2xl font-semibold text-ink tracking-tight">Quản lý học viên</h1>
+          <p className="text-xs text-muted">Danh sách tài khoản học viên đăng ký trên hệ thống và phân chia vai trò quản trị.</p>
         </div>
         
         {/* Search bar */}
         <div className="relative w-full sm:w-64">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
-            <Search className="h-4 w-4" />
-          </span>
+          <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Tìm theo tên hoặc email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full text-xs py-2 pl-9 pr-3 text-slate-900 bg-white border border-slate-200 rounded-lg placeholder-slate-400 focus:outline-none focus:border-accent transition-colors shadow-xs"
+            className="font-body text-sm bg-paper-dim border border-border rounded-md pl-9 pr-3 py-2 w-full placeholder:text-muted focus:outline-none focus:border-ink-soft transition-colors text-ink"
           />
         </div>
       </div>
 
       {/* Main Card Wrapper */}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+      <div className="bg-paper-raised border border-border rounded-md overflow-hidden">
         {loading ? (
           <div className="p-16 flex flex-col items-center justify-center gap-3">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-accent border-t-transparent" />
-            <span className="font-mono text-slate-400 text-xs">Đang tải tài khoản từ database...</span>
+            <span className="font-mono text-muted text-xs">Đang tải tài khoản từ database...</span>
           </div>
         ) : filteredUsers.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-bold tracking-wider text-[10px]">
+                <tr className="bg-paper border-b border-border text-muted uppercase font-semibold tracking-wide text-xs">
                   <th className="p-4 pl-6">Học viên</th>
                   <th className="p-4">Vai trò</th>
                   <th className="p-4">Khóa học đăng ký</th>
@@ -197,49 +196,48 @@ export function AdminUserListPage() {
                   <th className="p-4 pr-6 text-right">Hành động</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 text-sm text-slate-700">
+              <tbody className="divide-y divide-border text-sm text-ink-soft">
                 {filteredUsers.map((user) => (
-                  <tr key={user.uid} className="hover:bg-slate-50/50 transition-colors">
+                  <tr key={user.uid} className="hover:bg-paper/50 transition-colors">
                     
                     {/* User Profile */}
                     <td className="p-4 pl-6 flex items-center gap-3">
                       <img
                         src={user.avatarUrl}
                         alt={user.displayName}
-                        className="h-10 w-10 rounded-full border border-slate-200 bg-slate-50 object-cover flex-shrink-0"
+                        className="w-9 h-9 rounded-full border border-border bg-paper object-cover flex-shrink-0"
                       />
-                      <div className="space-y-0.5">
-                        <p className="font-semibold text-slate-900 text-sm sm:text-base leading-tight">{user.displayName}</p>
-                        <span className="text-[10px] text-slate-400 font-mono block leading-none">{user.email}</span>
+                      <div>
+                        <p className="font-body font-medium text-sm text-ink leading-tight">{user.displayName}</p>
+                        <p className="font-body text-xs text-muted leading-none mt-0.5">{user.email}</p>
                       </div>
                     </td>
 
                     {/* Role Badge */}
                     <td className="p-4">
-                      <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-bold uppercase ${
-                        user.role === 'admin' 
-                          ? 'bg-indigo-50 border border-indigo-100 text-accent' 
-                          : 'bg-slate-100 border border-slate-200 text-slate-500'
-                      }`}>
-                        {user.role === 'admin' ? 'Quản trị' : 'Học viên'}
+                      <span className={cn(
+                        'font-body font-medium text-xs px-2 py-1 rounded-sm inline-flex items-center gap-1',
+                        user.role === 'admin' ? 'bg-accent-soft text-ink' : 'bg-paper-dim text-ink-soft'
+                      )}>
+                        {user.role === 'admin' ? 'Quản trị viên' : 'Học viên'}
                       </span>
                     </td>
 
                     {/* Enrolled Courses Count */}
-                    <td className="p-4 font-mono text-slate-800 font-semibold">
+                    <td className="p-4 font-mono text-ink font-semibold">
                       {user.enrolledCount} khóa học
                     </td>
 
                     {/* Registration Date */}
-                    <td className="p-4 font-mono text-slate-400">{user.createdAt}</td>
+                    <td className="p-4 font-mono text-muted">{user.createdAt}</td>
 
                     {/* Status Badge */}
                     <td className="p-4">
-                      <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-bold uppercase ${
-                        user.status === 'active' 
-                          ? 'bg-emerald-50 border border-emerald-100 text-emerald-600' 
-                          : 'bg-red-50 border border-red-100 text-red-600'
-                      }`}>
+                      <span className={cn(
+                        'font-body font-medium text-xs px-2 py-1 rounded-sm inline-flex items-center gap-1',
+                        user.status === 'active' ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger'
+                      )}>
+                        <span className={cn('w-1.5 h-1.5 rounded-full', user.status === 'active' ? 'bg-success' : 'bg-danger')} />
                         {user.status === 'active' ? 'Hoạt động' : 'Đã khóa'}
                       </span>
                     </td>
@@ -248,7 +246,7 @@ export function AdminUserListPage() {
                     <td className="p-4 pr-6 text-right relative">
                       <button 
                         onClick={() => toggleMenu(user.uid)}
-                        className="p-1 rounded hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors cursor-pointer border border-slate-200/50"
+                        className="p-1 rounded border border-border hover:bg-paper-dim text-ink-soft hover:text-ink transition-colors cursor-pointer"
                       >
                         <MoreVertical className="h-4 w-4" />
                       </button>
@@ -257,12 +255,12 @@ export function AdminUserListPage() {
                         <>
                           <div className="fixed inset-0 z-10" onClick={() => setActiveMenu(null)} />
                           <div 
-                            className="absolute right-4 mt-1 w-44 py-1 z-20 bg-white border border-slate-200 rounded-lg shadow-md overflow-hidden animate-in fade-in duration-100"
+                            className="absolute right-4 mt-1 w-44 py-1 z-20 bg-paper-raised border border-border rounded-md shadow-xs overflow-hidden animate-in fade-in duration-100"
                           >
                             {user.role !== 'admin' && (
                               <button
                                 onClick={() => handlePromote(user.uid)}
-                                className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-accent transition-colors cursor-pointer"
+                                className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-ink hover:bg-paper-dim transition-colors cursor-pointer"
                               >
                                 <Shield className="h-4 w-4 text-accent" />
                                 Thăng cấp Admin
@@ -270,7 +268,7 @@ export function AdminUserListPage() {
                             )}
                             <button
                               onClick={() => handleBan(user.uid, user.status)}
-                              className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-danger hover:bg-slate-50 transition-colors cursor-pointer border-t border-slate-100"
+                              className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-danger hover:bg-paper-dim transition-colors cursor-pointer border-t border-border"
                             >
                               <Ban className="h-4 w-4" />
                               {user.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa'}
@@ -286,10 +284,10 @@ export function AdminUserListPage() {
             </table>
           </div>
         ) : (
-          <div className="p-12 flex flex-col items-center justify-center text-center text-slate-500">
-            <Search className="h-8 w-8 text-slate-400 mb-3" />
-            <p className="font-semibold text-sm text-slate-900">Không tìm thấy người dùng nào</p>
-            <p className="text-xs text-slate-400 mt-1">Vui lòng kiểm tra lại từ khóa tìm kiếm.</p>
+          <div className="p-12 flex flex-col items-center justify-center text-center text-muted">
+            <Search className="h-8 w-8 text-muted mb-3" />
+            <p className="font-display text-base text-ink mb-1">Không tìm thấy người dùng nào</p>
+            <p className="font-body text-xs text-muted">Vui lòng kiểm tra lại từ khóa tìm kiếm.</p>
           </div>
         )}
       </div>
