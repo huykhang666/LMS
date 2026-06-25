@@ -87,52 +87,52 @@ export function AdminCourseEditPage() {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="font-display text-2xl font-bold text-ink">Chỉnh sửa thông tin khóa học</h1>
-          <p className="text-xs text-ink-soft">Cập nhật hồ sơ thông tin và ảnh đại diện/banner cho khóa học.</p>
+          <h1 className="font-display text-3xl font-extrabold text-ink tracking-tight">Chỉnh sửa thông tin khóa học</h1>
+          <p className="text-xs text-muted">Cập nhật hồ sơ thông tin và ảnh đại diện/banner cho khóa học.</p>
         </div>
       </div>
 
-      <div className="card p-6 max-w-3xl">
+      <div className="card p-8 max-w-3xl bg-white shadow-sm font-sans">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Title */}
-            <div className="md:col-span-2 space-y-1">
-              <label htmlFor="title" className="block text-xs font-semibold uppercase tracking-wider text-ink-soft">
+            <div className="md:col-span-2 space-y-1.5">
+              <label htmlFor="title" className="block text-xs font-extrabold uppercase tracking-wider text-ink/80">
                 Tên khóa học *
               </label>
               <input
                 id="title"
                 type="text"
                 {...register('title')}
-                className="w-full rounded border border-border bg-paper-dim px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/15 focus:outline-none transition-all"
               />
-              {errors.title && <p className="text-xs text-danger">{errors.title.message}</p>}
+              {errors.title && <p className="text-xs text-danger font-bold mt-1">{errors.title.message}</p>}
             </div>
 
             {/* Short Description */}
-            <div className="md:col-span-2 space-y-1">
-              <label htmlFor="shortDescription" className="block text-xs font-semibold uppercase tracking-wider text-ink-soft">
+            <div className="md:col-span-2 space-y-1.5">
+              <label htmlFor="shortDescription" className="block text-xs font-extrabold uppercase tracking-wider text-ink/80">
                 Mô tả ngắn *
               </label>
               <input
                 id="shortDescription"
                 type="text"
                 {...register('shortDescription')}
-                className="w-full rounded border border-border bg-paper-dim px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/15 focus:outline-none transition-all"
               />
-              {errors.shortDescription && <p className="text-xs text-danger">{errors.shortDescription.message}</p>}
+              {errors.shortDescription && <p className="text-xs text-danger font-bold mt-1">{errors.shortDescription.message}</p>}
             </div>
 
             {/* Category */}
-            <div className="space-y-1">
-              <label htmlFor="category" className="block text-xs font-semibold uppercase tracking-wider text-ink-soft">
+            <div className="space-y-1.5">
+              <label htmlFor="category" className="block text-xs font-extrabold uppercase tracking-wider text-ink/80">
                 Chuyên mục
               </label>
               <select
                 id="category"
                 {...register('category')}
-                className="w-full rounded border border-border bg-paper-dim px-3 py-2 text-sm text-ink-soft focus:outline-none cursor-pointer"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-ink-soft focus:border-accent focus:ring-2 focus:ring-accent/15 focus:outline-none transition-all cursor-pointer font-bold"
               >
                 <option value="programming">Lập trình</option>
                 <option value="frontend">Frontend</option>
@@ -145,68 +145,68 @@ export function AdminCourseEditPage() {
                 <option value="certificate">Chứng chỉ</option>
                 <option value="math">Toán học</option>
               </select>
-              {errors.category && <p className="text-xs text-danger">{errors.category.message}</p>}
+              {errors.category && <p className="text-xs text-danger font-bold mt-1">{errors.category.message}</p>}
             </div>
 
             {/* Level */}
-            <div className="space-y-1">
-              <label htmlFor="level" className="block text-xs font-semibold uppercase tracking-wider text-ink-soft">
+            <div className="space-y-1.5">
+              <label htmlFor="level" className="block text-xs font-extrabold uppercase tracking-wider text-ink/80">
                 Cấp độ giảng dạy
               </label>
               <select
                 id="level"
                 {...register('level')}
-                className="w-full rounded border border-border bg-paper-dim px-3 py-2 text-sm text-ink-soft focus:outline-none cursor-pointer"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-ink-soft focus:border-accent focus:ring-2 focus:ring-accent/15 focus:outline-none transition-all cursor-pointer font-bold"
               >
                 <option value="beginner">Cơ bản (Beginner)</option>
                 <option value="intermediate">Trung bình (Intermediate)</option>
                 <option value="advanced">Nâng cao (Advanced)</option>
               </select>
-              {errors.level && <p className="text-xs text-danger">{errors.level.message}</p>}
+              {errors.level && <p className="text-xs text-danger font-bold mt-1">{errors.level.message}</p>}
             </div>
 
             {/* Thumbnail URL */}
-            <div className="space-y-1">
-              <label htmlFor="thumbnailUrl" className="block text-xs font-semibold uppercase tracking-wider text-ink-soft">
+            <div className="space-y-1.5">
+              <label htmlFor="thumbnailUrl" className="block text-xs font-extrabold uppercase tracking-wider text-ink/80">
                 URL ảnh thumbnail (tùy chọn)
               </label>
               <input
                 id="thumbnailUrl"
                 type="url"
                 {...register('thumbnailUrl')}
-                className="w-full rounded border border-border bg-paper-dim px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/15 focus:outline-none transition-all"
                 placeholder="https://..."
               />
-              {errors.thumbnailUrl && <p className="text-xs text-danger">{errors.thumbnailUrl.message}</p>}
+              {errors.thumbnailUrl && <p className="text-xs text-danger font-bold mt-1">{errors.thumbnailUrl.message}</p>}
             </div>
 
             {/* Banner URL */}
-            <div className="space-y-1">
-              <label htmlFor="bannerUrl" className="block text-xs font-semibold uppercase tracking-wider text-ink-soft">
+            <div className="space-y-1.5">
+              <label htmlFor="bannerUrl" className="block text-xs font-extrabold uppercase tracking-wider text-ink/80">
                 URL ảnh banner (tùy chọn)
               </label>
               <input
                 id="bannerUrl"
                 type="url"
                 {...register('bannerUrl')}
-                className="w-full rounded border border-border bg-paper-dim px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/15 focus:outline-none transition-all"
                 placeholder="https://..."
               />
-              {errors.bannerUrl && <p className="text-xs text-danger">{errors.bannerUrl.message}</p>}
+              {errors.bannerUrl && <p className="text-xs text-danger font-bold mt-1">{errors.bannerUrl.message}</p>}
             </div>
 
             {/* Full description */}
-            <div className="md:col-span-2 space-y-1">
-              <label htmlFor="fullDescription" className="block text-xs font-semibold uppercase tracking-wider text-ink-soft">
+            <div className="md:col-span-2 space-y-1.5">
+              <label htmlFor="fullDescription" className="block text-xs font-extrabold uppercase tracking-wider text-ink/80">
                 Mô tả chi tiết khóa học *
               </label>
               <textarea
                 id="fullDescription"
                 rows={6}
                 {...register('fullDescription')}
-                className="w-full rounded border border-border bg-paper-dim px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/15 focus:outline-none transition-all"
               />
-              {errors.fullDescription && <p className="text-xs text-danger">{errors.fullDescription.message}</p>}
+              {errors.fullDescription && <p className="text-xs text-danger font-bold mt-1">{errors.fullDescription.message}</p>}
             </div>
 
           </div>
@@ -214,14 +214,14 @@ export function AdminCourseEditPage() {
           <div className="border-t border-border pt-6 flex justify-end gap-3">
             <Link
               to="/admin/courses"
-              className="rounded border border-border bg-paper-raised px-4 py-2 text-xs font-semibold text-ink-soft hover:bg-paper-dim transition-colors"
+              className="rounded-xl border border-border bg-slate-50 px-5 py-3 text-xs font-bold text-ink-soft hover:bg-slate-100 hover:text-ink transition-colors shadow-xs"
             >
               Hủy
             </Link>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 rounded bg-accent px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-accent/90 transition-all hover:scale-[1.02] disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-accent px-5 py-3 text-xs font-bold text-white shadow-md hover:bg-accent-deep hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               {isSubmitting ? 'Đang lưu...' : 'Lưu thay đổi'}

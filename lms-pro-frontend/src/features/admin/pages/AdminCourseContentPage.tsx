@@ -261,17 +261,17 @@ export function AdminCourseContentPage() {
 
         {/* RIGHT COLUMN: Video Resumable Uploader Mock (4 cols) */}
         <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
-          <div className="card p-6 space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-ink">Thêm nội dung bài học</h3>
+          <div className="card p-6 space-y-4 bg-white shadow-sm rounded-2xl font-sans">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-ink">Thêm nội dung bài học</h3>
             
             {chapters.length > 0 ? (
               <form onSubmit={handleSimulateUpload} className="space-y-4">
-                <div className="space-y-1">
-                  <label className="block text-[11px] font-bold text-ink-soft uppercase">Chọn chương học target</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[11px] font-extrabold text-ink-soft uppercase">Chọn chương học target</label>
                   <select
                     value={targetChapterId}
                     onChange={(e) => setSelectedChapterId(e.target.value)}
-                    className="w-full rounded border border-border bg-paper-dim px-3 py-2 text-xs text-ink focus:outline-none cursor-pointer"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs text-ink-soft focus:border-accent focus:ring-2 focus:ring-accent/15 focus:outline-none transition-all cursor-pointer font-bold"
                   >
                     {chapters.map((ch) => (
                       <option key={ch.id} value={ch.id}>{ch.title}</option>
@@ -279,16 +279,16 @@ export function AdminCourseContentPage() {
                   </select>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block text-[11px] font-bold text-ink-soft uppercase">Loại bài học</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[11px] font-extrabold text-ink-soft uppercase">Loại bài học</label>
                   <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={() => setLessonType('video')}
-                      className={`flex-1 py-1.5 px-3 rounded border text-xs font-semibold transition-all ${
+                      className={`flex-1 py-2 px-3 rounded-xl border text-xs font-extrabold transition-all hover:scale-[1.01] ${
                         lessonType === 'video'
-                          ? 'bg-accent text-white border-accent'
-                          : 'bg-paper-raised text-ink-soft border-border hover:bg-paper-dim'
+                          ? 'bg-accent text-white border-accent shadow-xs'
+                          : 'bg-white text-ink-soft border-slate-350 hover:bg-slate-50'
                       }`}
                     >
                       Video bài giảng
@@ -296,10 +296,10 @@ export function AdminCourseContentPage() {
                     <button
                       type="button"
                       onClick={() => setLessonType('pdf')}
-                      className={`flex-1 py-1.5 px-3 rounded border text-xs font-semibold transition-all ${
+                      className={`flex-1 py-2 px-3 rounded-xl border text-xs font-extrabold transition-all hover:scale-[1.01] ${
                         lessonType === 'pdf'
-                          ? 'bg-accent text-white border-accent'
-                          : 'bg-paper-raised text-ink-soft border-border hover:bg-paper-dim'
+                          ? 'bg-accent text-white border-accent shadow-xs'
+                          : 'bg-white text-ink-soft border-slate-350 hover:bg-slate-50'
                       }`}
                     >
                       Tài liệu PDF
@@ -307,34 +307,34 @@ export function AdminCourseContentPage() {
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block text-[11px] font-bold text-ink-soft uppercase">Tiêu đề bài học</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[11px] font-extrabold text-ink-soft uppercase">Tiêu đề bài học</label>
                   <input
                     type="text"
                     required
                     placeholder="Ví dụ: Bài 1: Setup dự án"
                     value={newLessonTitle}
                     onChange={(e) => setNewLessonTitle(e.target.value)}
-                    className="w-full rounded border border-border bg-paper-dim px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs text-ink focus:border-accent focus:ring-2 focus:ring-accent/15 focus:outline-none transition-all"
                   />
                 </div>
 
                 {!isUploading ? (
                   <button
                     type="submit"
-                    className="w-full inline-flex items-center justify-center gap-1.5 rounded bg-accent py-2 text-xs font-bold text-white shadow-sm hover:bg-accent/90 transition-all"
+                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent py-3 text-xs font-bold text-white shadow-md shadow-accent/15 hover:bg-accent-deep hover:scale-[1.01] transition-all"
                   >
-                    <Upload className="h-3.5 w-3.5" />
+                    <Upload className="h-4.5 w-4.5" />
                     Tải lên & Lưu bài học
                   </button>
                 ) : (
-                  <div className="border border-border rounded flex flex-col items-center justify-center text-center p-4 bg-paper-raised space-y-3">
+                  <div className="border border-border rounded-xl flex flex-col items-center justify-center text-center p-4 bg-slate-50 space-y-3 shadow-xs">
                     <div className="w-full space-y-2">
                       <div className="flex justify-between text-[10px] text-ink-soft font-mono font-bold">
                         <span>Đang xử lý tải lên...</span>
                         <span>{uploadProgress}%</span>
                       </div>
-                      <div className="h-1.5 w-full bg-paper rounded border border-border overflow-hidden">
+                      <div className="h-1.5 w-full bg-white rounded border border-border overflow-hidden">
                         <div className="h-full bg-accent transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
                       </div>
                     </div>

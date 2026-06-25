@@ -36,85 +36,75 @@ export function AdminCourseListPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
+    <div className="space-y-6 animate-in fade-in duration-200 font-sans">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="font-display text-2xl font-bold text-ink">Quản lý khóa học</h1>
-          <p className="text-xs text-ink-soft">Xem danh sách, quản lý cấu trúc bài giảng và xuất bản các khóa học của hệ thống.</p>
+          <h1 className="font-display text-3xl font-extrabold text-ink tracking-tight">Quản lý khóa học</h1>
+          <p className="text-xs text-muted">Xem danh sách, quản lý cấu trúc bài giảng và xuất bản các khóa học của hệ thống.</p>
         </div>
         <Link
           to="/admin/courses/new"
-          style={{
-            backgroundColor: 'var(--color-accent)',
-            boxShadow: '0 4px 14px rgba(224,115,74,0.3)'
-          }}
-          className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold text-white hover:bg-accent/95 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-accent hover:bg-accent-deep text-white font-extrabold px-5 py-3 text-xs shadow-md shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4.5 w-4.5" strokeWidth={2.5} />
           Thêm khóa học mới
         </Link>
       </div>
 
       {/* Table Container */}
       <div 
-        style={{
-          background: 'var(--color-paper-raised)',
-          border: '1px solid var(--color-border)',
-          borderRadius: '16px',
-          boxShadow: '0 4px 20px rgba(27,42,74,0.02)'
-        }}
-        className="overflow-hidden animate-in slide-in-from-bottom-2 duration-300"
+        className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden animate-in slide-in-from-bottom-2 duration-300"
       >
         {courses.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-paper border-b border-border text-ink-soft uppercase font-bold tracking-wider">
-                  <th className="p-4 pl-6">Khóa học</th>
-                  <th className="p-4">Chuyên mục</th>
-                  <th className="p-4">Trạng thái</th>
-                  <th className="p-4">Cấu trúc bài học</th>
-                  <th className="p-4 pr-6 text-right">Thao tác</th>
+                <tr className="bg-slate-50/70 border-b border-border text-ink-soft uppercase font-extrabold tracking-wider text-xs">
+                  <th className="p-5 pl-6">Khóa học</th>
+                  <th className="p-5">Chuyên mục</th>
+                  <th className="p-5">Trạng thái</th>
+                  <th className="p-5">Cấu trúc bài học</th>
+                  <th className="p-5 pr-6 text-right">Thao tác</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y divide-border text-sm">
                 {courses.map((course) => (
-                  <tr key={course.id} className="hover:bg-paper/40 transition-colors text-ink-soft">
+                  <tr key={course.id} className="hover:bg-slate-50/40 transition-colors text-ink-soft">
                     
                     {/* Title and slug */}
-                    <td className="p-4 pl-6">
-                      <p className="font-bold text-ink text-sm leading-tight">{course.title}</p>
-                      <span className="text-[10px] text-muted font-mono block mt-0.5">{course.slug}</span>
+                    <td className="p-5 pl-6">
+                      <p className="font-extrabold text-ink text-sm sm:text-base leading-tight">{course.title}</p>
+                      <span className="text-[10px] text-muted font-mono block mt-1">{course.slug}</span>
                     </td>
 
                     {/* Category */}
-                    <td className="p-4 font-bold text-ink/80">
-                      <span className="inline-flex px-2 py-0.5 rounded-lg bg-paper border border-border font-medium text-[10px]">
+                    <td className="p-5 font-bold text-ink/85">
+                      <span className="inline-flex px-3 py-1 rounded-xl bg-slate-100 border border-slate-200/50 font-bold text-[10px] text-slate-700">
                         {categoryLabels[course.category] || course.category}
                       </span>
                     </td>
 
                     {/* Status Toggle Button */}
-                    <td className="p-4">
+                    <td className="p-5">
                       <button
                         onClick={() => handleTogglePublish(course)}
                         title="Bấm để đổi trạng thái"
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-bold uppercase transition-all duration-200 border cursor-pointer ${
+                        className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold uppercase transition-all duration-200 cursor-pointer text-white shadow-xs ${
                           course.status === 'published' 
-                            ? 'bg-success-soft/10 text-success border-success/20 hover:bg-success-soft/20' 
-                            : 'bg-paper text-muted border-border hover:bg-paper-dim'
+                            ? 'bg-success hover:bg-success/90' 
+                            : 'bg-slate-400 hover:bg-slate-500'
                         }`}
                       >
                         {course.status === 'published' ? (
                           <>
-                            <Eye className="h-3 w-3" />
+                            <Eye className="h-3.5 w-3.5" />
                             Đã đăng
                           </>
                         ) : (
                           <>
-                            <EyeOff className="h-3 w-3" />
+                            <EyeOff className="h-3.5 w-3.5" />
                             Bản nháp
                           </>
                         )}
@@ -122,30 +112,30 @@ export function AdminCourseListPage() {
                     </td>
 
                     {/* Course Metrics */}
-                    <td className="p-4 font-mono text-ink-soft">
-                      <strong className="text-ink">{course.chapters?.length || 0}</strong> chương / <strong className="text-ink">{getLessonsCount(course)}</strong> bài học
+                    <td className="p-5 font-mono text-ink-soft">
+                      <strong className="text-ink font-extrabold text-sm">{course.chapters?.length || 0}</strong> chương / <strong className="text-ink font-extrabold text-sm">{getLessonsCount(course)}</strong> bài học
                     </td>
 
                     {/* Actions buttons */}
-                    <td className="p-4 pr-6 text-right">
-                      <div className="flex items-center justify-end gap-4">
+                    <td className="p-5 pr-6 text-right">
+                      <div className="flex items-center justify-end gap-3">
                         <Link 
                           to={`/admin/courses/${course.id}/edit`} 
-                          className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:text-accent/80 transition-colors"
+                          className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:text-accent-deep transition-all bg-accent/5 px-2.5 py-1.5 rounded-lg border border-accent/15"
                         >
                           <Edit className="h-3.5 w-3.5" />
                           Sửa
                         </Link>
                         <Link 
                           to={`/admin/courses/${course.id}/content`} 
-                          className="inline-flex items-center gap-1 text-xs font-bold text-ink-soft hover:text-ink transition-colors"
+                          className="inline-flex items-center gap-1 text-xs font-bold text-ink-soft hover:text-ink transition-all bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200"
                         >
                           <BookOpen className="h-3.5 w-3.5 text-muted" />
                           Bài giảng
                         </Link>
                         <button 
                           onClick={() => handleDelete(course.id, course.title)}
-                          className="inline-flex items-center gap-1 text-xs font-bold text-danger hover:text-danger/80 transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1.5 text-xs font-bold text-danger hover:bg-danger/5 px-2.5 py-1.5 rounded-lg border border-danger/10 cursor-pointer"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           Xóa
@@ -160,16 +150,16 @@ export function AdminCourseListPage() {
           </div>
         ) : (
           <div className="p-16 flex flex-col items-center justify-center text-center text-ink-soft">
-            <div className="p-4 rounded-full bg-paper border border-border mb-4">
-              <BookOpen className="h-8 w-8 text-muted" />
+            <div className="p-4 rounded-full bg-slate-50 border border-border mb-4">
+              <BookOpen className="h-10 w-10 text-muted" />
             </div>
-            <p className="font-bold text-sm text-ink">Chưa có khóa học nào được tải lên</p>
-            <p className="text-xs text-muted mt-1 mb-4">Bạn chưa soạn thảo khóa học nào trong hệ thống.</p>
+            <p className="font-extrabold text-base text-ink">Chưa có khóa học nào được tải lên</p>
+            <p className="text-xs text-muted mt-1 mb-6">Bạn chưa soạn thảo khóa học nào trong hệ thống.</p>
             <Link
               to="/admin/courses/new"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-accent/95 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-accent px-5 py-3 text-xs font-bold text-white shadow-md hover:bg-accent/95 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
             >
-              <FilePlus className="h-4 w-4" />
+              <FilePlus className="h-4.5 w-4.5" />
               Thêm khóa học đầu tiên
             </Link>
           </div>

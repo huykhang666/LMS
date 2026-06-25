@@ -153,46 +153,32 @@ export function AdminUserListPage() {
   );
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
+    <div className="space-y-6 animate-in fade-in duration-200 font-sans">
       
       {/* Title */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="font-display text-2xl font-bold text-ink">Quản lý học viên</h1>
-          <p className="text-xs text-ink-soft">Danh sách tài khoản học viên đăng ký trên hệ thống và phân chia vai trò quản trị.</p>
+          <h1 className="font-display text-3xl font-extrabold text-ink tracking-tight">Quản lý học viên</h1>
+          <p className="text-xs text-muted">Danh sách tài khoản học viên đăng ký trên hệ thống và phân chia vai trò quản trị.</p>
         </div>
         
         {/* Search bar */}
-        <div className="relative w-full sm:w-64">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted">
-            <Search className="h-4 w-4" />
+        <div className="relative w-full sm:w-72">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-muted">
+            <Search className="h-4.5 w-4.5" />
           </span>
           <input
             type="text"
             placeholder="Tìm theo tên hoặc email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              paddingLeft: '2.25rem',
-              background: 'var(--color-paper-raised)',
-              border: '1px solid var(--color-border)',
-              borderRadius: '12px'
-            }}
-            className="w-full text-xs py-2 px-3 text-ink placeholder-muted focus:outline-none focus:border-accent transition-colors"
+            className="w-full text-sm py-3 pl-11 pr-4 text-ink bg-white border border-border rounded-xl placeholder-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all shadow-xs"
           />
         </div>
       </div>
 
       {/* Main Card Wrapper */}
-      <div 
-        style={{
-          background: 'var(--color-paper-raised)',
-          border: '1px solid var(--color-border)',
-          borderRadius: '16px',
-          boxShadow: '0 4px 20px rgba(27,42,74,0.02)'
-        }}
-        className="overflow-hidden"
-      >
+      <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
         {loading ? (
           <div className="p-16 flex flex-col items-center justify-center gap-3">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-accent border-t-transparent" />
@@ -202,48 +188,47 @@ export function AdminUserListPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-paper border-b border-border text-ink-soft uppercase font-bold tracking-wider">
-                  <th className="p-4 pl-6">Học viên</th>
-                  <th className="p-4">Vai trò</th>
-                  <th className="p-4">Khóa học đăng ký</th>
-                  <th className="p-4">Ngày đăng ký</th>
-                  <th className="p-4">Trạng thái</th>
-                  <th className="p-4 pr-6 text-right">Hành động</th>
+                <tr className="bg-slate-50/70 border-b border-border text-ink-soft uppercase font-extrabold tracking-wider text-xs">
+                  <th className="p-5 pl-6">Học viên</th>
+                  <th className="p-5">Vai trò</th>
+                  <th className="p-5">Khóa học đăng ký</th>
+                  <th className="p-5">Ngày đăng ký</th>
+                  <th className="p-5">Trạng thái</th>
+                  <th className="p-5 pr-6 text-right">Hành động</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y divide-border text-sm">
                 {filteredUsers.map((user) => (
-                  <tr key={user.uid} className="hover:bg-paper/40 transition-colors text-ink-soft">
+                  <tr key={user.uid} className="hover:bg-slate-50/40 transition-colors text-ink-soft">
                     
                     {/* User Profile */}
-                    <td className="p-4 pl-6 flex items-center gap-3">
+                    <td className="p-5 pl-6 flex items-center gap-3.5">
                       <img
                         src={user.avatarUrl}
                         alt={user.displayName}
-                        style={{ border: '1px solid var(--color-border)' }}
-                        className="h-10 w-10 rounded-full bg-paper object-cover flex-shrink-0"
+                        className="h-12 w-12 rounded-full border-2 border-slate-100 bg-slate-55 object-cover flex-shrink-0 shadow-xs"
                       />
-                      <div className="space-y-0.5">
-                        <p className="font-bold text-ink text-sm leading-tight">{user.displayName}</p>
+                      <div className="space-y-1">
+                        <p className="font-extrabold text-ink text-sm sm:text-base leading-tight">{user.displayName}</p>
                         <span className="text-[10px] text-muted font-mono block leading-none">{user.email}</span>
                       </div>
                     </td>
 
                     {/* Role Badge */}
-                    <td className="p-4">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase border ${
+                    <td className="p-5">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase border shadow-xs ${
                         user.role === 'admin' 
-                          ? 'bg-accent/10 border-accent/20 text-accent' 
-                          : 'bg-paper border-border text-muted'
+                          ? 'bg-violet-600 border-violet-700 text-white' 
+                          : 'bg-slate-100 border-slate-200 text-slate-700'
                       }`}>
                         {user.role === 'admin' ? (
                           <>
-                            <ShieldAlert className="h-3 w-3" />
+                            <ShieldAlert className="h-3.5 w-3.5" />
                             Quản trị viên
                           </>
                         ) : (
                           <>
-                            <UserCheck className="h-3 w-3" />
+                            <UserCheck className="h-3.5 w-3.5" />
                             Học viên
                           </>
                         )}
@@ -251,28 +236,28 @@ export function AdminUserListPage() {
                     </td>
 
                     {/* Enrolled Courses Count */}
-                    <td className="p-4 font-mono font-bold text-ink text-sm">
+                    <td className="p-5 font-mono font-bold text-ink text-sm sm:text-base">
                       {user.enrolledCount} khóa học
                     </td>
 
                     {/* Registration Date */}
-                    <td className="p-4 font-mono text-muted">{user.createdAt}</td>
+                    <td className="p-5 font-mono text-muted">{user.createdAt}</td>
 
                     {/* Status Badge */}
-                    <td className="p-4">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase border ${
+                    <td className="p-5">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase border shadow-xs ${
                         user.status === 'active' 
-                          ? 'bg-success-soft/10 border-success/20 text-success' 
-                          : 'bg-danger/10 border-danger/20 text-danger'
+                          ? 'bg-success border-success/30 text-white' 
+                          : 'bg-danger border-danger/30 text-white'
                       }`}>
                         {user.status === 'active' ? (
                           <>
-                            <CheckCircle className="h-3 w-3" />
+                            <CheckCircle className="h-3.5 w-3.5" />
                             Hoạt động
                           </>
                         ) : (
                           <>
-                            <Ban className="h-3 w-3" />
+                            <Ban className="h-3.5 w-3.5" />
                             Đã khóa
                           </>
                         )}
@@ -280,41 +265,35 @@ export function AdminUserListPage() {
                     </td>
 
                     {/* Actions Menu */}
-                    <td className="p-4 pr-6 text-right relative">
+                    <td className="p-5 pr-6 text-right relative">
                       <button 
                         onClick={() => toggleMenu(user.uid)}
-                        className="p-1.5 rounded-lg hover:bg-paper text-ink-soft/80 hover:text-ink transition-colors cursor-pointer"
+                        className="p-2 rounded-xl hover:bg-slate-100 text-ink-soft/85 hover:text-ink transition-colors cursor-pointer border border-transparent hover:border-slate-200"
                       >
-                        <MoreVertical className="h-4 w-4" />
+                        <MoreVertical className="h-5 w-5" />
                       </button>
 
                       {activeMenu === user.uid && (
                         <>
                           <div className="fixed inset-0 z-10" onClick={() => setActiveMenu(null)} />
                           <div 
-                            style={{
-                              background: 'var(--color-paper-raised)',
-                              border: '1px solid var(--color-border)',
-                              boxShadow: '0 8px 24px rgba(27,42,74,0.08)',
-                              borderRadius: '12px'
-                            }}
-                            className="absolute right-4 mt-1 w-44 py-1.5 z-20 overflow-hidden"
+                            className="absolute right-4 mt-2 w-48 py-2 z-20 bg-white border border-border rounded-xl shadow-lg animate-in fade-in duration-100"
                           >
                             {user.role !== 'admin' && (
                               <button
                                 onClick={() => handlePromote(user.uid)}
-                                className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-xs font-bold text-ink-soft hover:bg-paper transition-colors cursor-pointer"
+                                className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-xs font-bold text-ink-soft hover:bg-slate-50 hover:text-accent transition-colors cursor-pointer"
                               >
-                                <Shield className="h-4 w-4 text-accent" />
+                                <Shield className="h-4.5 w-4.5 text-accent" />
                                 Thăng cấp Admin
                               </button>
                             )}
                             <button
                               onClick={() => handleBan(user.uid, user.status)}
-                              className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-xs font-bold text-danger hover:bg-paper transition-colors cursor-pointer"
+                              className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-xs font-bold text-danger hover:bg-danger/5 transition-colors cursor-pointer border-t border-slate-100"
                             >
-                              <Ban className="h-4 w-4" />
-                              {user.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa'}
+                              <Ban className="h-4.5 w-4.5" />
+                              {user.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
                             </button>
                           </div>
                         </>
@@ -327,9 +306,9 @@ export function AdminUserListPage() {
             </table>
           </div>
         ) : (
-          <div className="p-12 flex flex-col items-center justify-center text-center text-ink-soft">
-            <Search className="h-8 w-8 text-muted mb-3" />
-            <p className="font-bold text-sm text-ink">Không tìm thấy người dùng nào</p>
+          <div className="p-16 flex flex-col items-center justify-center text-center text-ink-soft">
+            <Search className="h-10 w-10 text-muted mb-4" />
+            <p className="font-extrabold text-base text-ink">Không tìm thấy người dùng nào</p>
             <p className="text-xs text-muted mt-1">Vui lòng kiểm tra lại từ khóa tìm kiếm.</p>
           </div>
         )}
