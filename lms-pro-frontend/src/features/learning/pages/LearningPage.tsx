@@ -7,7 +7,8 @@ import {
   Play, 
   FileText, 
   Sparkles,
-  Maximize
+  Maximize,
+  BookOpen
 } from 'lucide-react';
 import { useCourseStore } from '@/store/courseStore';
 
@@ -515,7 +516,7 @@ export function LearningPage() {
             animation: 'fade-up 0.25s ease-out', zIndex: 151, overflowY: 'auto'
           }}>
             {/* Drawer Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', padding: '16px 20px', borderBottom: '1px solid var(--color-border)', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid var(--color-border)', justifyContent: 'space-between' }}>
               <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--color-ink)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Nội dung học tập
               </span>
