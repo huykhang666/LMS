@@ -1,0 +1,45 @@
+rules_version = '2';
+
+function isSignedIn() {
+  return request.auth != null;
+}
+function isAdmin() {
+  return isSignedIn() && request.auth.token.role == 'admin';
+}
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Video — Admin writes/reads directly, Users read via public download urls token checked by client
+    match /videos/{courseId}/{lessonId}/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin()
+        && request.resource.size < 2 * 1024 * 1024 * 1024  // 2GB max
+        && request.resource.contentType.matches('video/.*');
+    }
+
+    match /documents/{courseId}/{lessonId}/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin()
+        && request.resource.size < 50 * 1024 * 1024; // 50MB max
+    }
+
+    match /thumbnails/{courseId}/{fileName} {
+      allow read: if true; 
+      allow write: if isAdmin()
+        && request.resource.contentType.matches('image/.*')
+        && request.resource.size < 5 * 1024 * 1024;
+    }
+
+    match /banners/{courseId}/{fileName} {
+      allow read: if true;
+      allow write: if isAdmin() && request.resource.contentType.matches('image/.*');
+    }
+
+    match /avatars/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if isSignedIn() && request.auth.uid == userId
+        && request.resource.size < 2 * 1024 * 1024;
+    }
+  }
+}

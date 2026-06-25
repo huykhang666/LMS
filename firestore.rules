@@ -1,0 +1,83 @@
+rules_version = '2';
+
+function isSignedIn() {
+  return request.auth != null;
+}
+function isAdmin() {
+  return isSignedIn() && request.auth.token.role == 'admin';
+}
+function isOwner(userId) {
+  return isSignedIn() && request.auth.uid == userId;
+}
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- COURSES & content nesting ----
+    match /courses/{courseId} {
+      allow read: if resource.data.status == 'published' || isAdmin();
+      allow create, update, delete: if isAdmin();
+
+      match /chapters/{chapterId} {
+        allow read: if isAdmin() || (get(/databases/$(database)/documents/courses/$(courseId)).data.status == 'published');
+        allow write: if isAdmin();
+
+        match /sections/{sectionId} {
+          allow read: if isAdmin() || (get(/databases/$(database)/documents/courses/$(courseId)).data.status == 'published');
+          allow write: if isAdmin();
+
+          match /lessons/{lessonId} {
+            allow read: if isAdmin() || (get(/databases/$(database)/documents/courses/$(courseId)).data.status == 'published');
+            allow write: if isAdmin();
+          }
+        }
+      }
+    }
+
+    // ---- QUIZ — User only reads questions, not correct options ----
+    match /quizzes/{quizId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---- ENROLLMENTS — User only views/writes own enrollment ----
+    match /enrollments/{enrollmentId} {
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isOwner(resource.data.userId);
+      allow delete: if isAdmin();
+    }
+
+    // ---- PROGRESS — User only sets own progress ----
+    match /progress/{progressId} {
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create, update: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.videoWatchedSeconds is number
+        && request.resource.data.videoWatchedSeconds >= 0;
+      allow delete: if false; 
+    }
+
+    // ---- QUIZ ATTEMPTS — immutable ----
+    match /quizAttempts/{attemptId} {
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ---- NOTES — private ----
+    match /notes/{noteId} {
+      allow read, update, delete: if isOwner(resource.data.userId);
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // ---- USERS ----
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow update: if isOwner(userId)
+        && !('role' in request.resource.data.diff(resource.data).affectedKeys());
+      allow create: if isOwner(userId);
+      allow delete: if isAdmin();
+    }
+  }
+}
